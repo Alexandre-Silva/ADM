@@ -1,11 +1,11 @@
 #!/bin/env bash
 
 
-source "./adm.sh"
-source "./lib.sh"
+. "./adm.sh"
+. "./lib.sh"
 
 
-function assert_eq() {
+assert_eq() {
     expected="$1"
     result="$2"
 
@@ -20,7 +20,7 @@ function assert_eq() {
 
 }
 
-function test_find_setups() {
+test_find_setups() {
     result=$(find_setups .)
     expected="./test.setup\n./test/test.setup"
 
@@ -29,7 +29,7 @@ function test_find_setups() {
 
 }
 
-function main() {
+main() {
     test="test_"$1
 
     running "$test"
