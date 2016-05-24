@@ -28,7 +28,7 @@ function bot() {
 }
 
 function running() {
-    echo -en "$COL_YELLOW ⇒ $COL_RESET"$1": "
+    echo -en "$COL_YELLOW ⇒ $COL_RESET"$1"\n"
 }
 
 function action() {
