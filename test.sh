@@ -61,15 +61,16 @@ main() {
     local argv=("$@")
     local target=$1
 
+    local targets=()
     if [[ "$target" = "all" ]] ; then
-        for t in "find_setups" "extract_packages"; do
-            adm_test "$t"
-        done
+        targets=("find_setups" "extract_packages")
     else
-        for t in "${argv[@]}"; do
-            adm_test "$t"
-        done
+        targets=( "${argv[@]}" )
     fi
+
+    for t in "${targets[@]}"; do
+        adm_test "$t"
+    done
 }
 
 main "$@"
