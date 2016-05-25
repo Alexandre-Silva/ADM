@@ -30,7 +30,7 @@ find_setups() {
 extract_packages() {
     local file="$1"
 
-    . "$file"
+    source "$file"
 
     # is `packages` defined
     if [ -z ${packages+x} ]; then
