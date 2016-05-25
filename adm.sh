@@ -3,7 +3,7 @@
 ####
 # Imports
 ####
-. "./lib.sh"
+source "./lib.sh"
 
 ####
 # CONFIGS and VARS
@@ -16,6 +16,11 @@ _packages=()
 ####
 # Funcs
 ####
+reset_setup() {
+    _packages=()
+}
+
+
 find_setups() {
     local root_dir="$1"
 
@@ -48,14 +53,32 @@ extract_packages() {
     return 0
 }
 
+declare -A package_managers
+package_manager["pm"]="adm_pacman"
+
+adm_pacman() {
+    local command="$1"
+    local package="${2#pm:}"
+
+    case $command in
+        install) sudo pacman -S $package ;;
+        *) err "Invalid command: $command"
+    esac
+}
+
+install_packages() {
+    for pcg in "${_packages[@]}"; do
+        adm_pacman "install" "$pcg"
+    done
+}
 
 
 
 OK="true"
 
 assert_eq() {
-    expected="$1"
-    result="$2"
+    local expected="$1"
+    local result="$2"
 
     if diff <(printf -- "$expected") <(printf -- "$result") >/dev/null 2>&1; then
         OK="true"

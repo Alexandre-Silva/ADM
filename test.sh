@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 ####
 # Imports
@@ -43,7 +43,8 @@ test_extract_packages() {
     assert_eq "pm:fortune" "${_packages[0]}"
 }
 
-test() {
+
+adm_test() {
     _target="test_"$1
 
     OK="true"
@@ -51,18 +52,23 @@ test() {
     running "$_target"
     "$_target"
 
-    [ "$OK" = "true" ] && ok || error
+    reset_setup
+
+    if [ "$OK" = "true" ]; then ok; else error; fi
 }
 
 main() {
-    target=$1
+    local argv=("$@")
+    local target=$1
 
     if [[ "$target" = "all" ]] ; then
         for t in "find_setups" "extract_packages"; do
-            test "$t"
+            adm_test "$t"
         done
     else
-        test "$@"
+        for t in "${argv[@]}"; do
+            adm_test "$t"
+        done
     fi
 }
 
