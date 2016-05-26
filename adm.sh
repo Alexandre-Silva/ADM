@@ -24,7 +24,7 @@ reset_setup() {
 find_setups() {
     local root_dir="$1"
 
-    printf -- "%s\n" $(find "$root_dir" -type f -name "*.setup.sh")
+    printf -- "%s\n" $(find "$root_dir" -type f -name "*.setup.sh" | sort)
 }
 
 extract_packages() {

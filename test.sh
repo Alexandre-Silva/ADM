@@ -43,7 +43,6 @@ test_extract_packages() {
     assert_eq "pm:fortune" "${_packages[0]}"
 }
 
-
 adm_test() {
     _target="test_"$1
 
