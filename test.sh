@@ -11,6 +11,13 @@
 ####
 OK="true"
 
+all_targets=(
+    "find_setups"
+    "extract_packages"
+    "pm_register_ok"
+    "pm_register_fail"
+)
+
 ####
 # Funcs
 ####
@@ -43,6 +50,32 @@ test_extract_packages() {
     assert_eq "pm:fortune" "${_packages[0]}"
 }
 
+test_pm_register_ok() {
+    local _called=0
+    pm_test() { _called=1; }
+
+    pm_register "test" "pm_test" 1>/dev/null 2>&1
+
+    assert_eq "0" "$?"
+    assert_eq "pm_test" "${package_manager[test]}"
+    "${package_manager[test]}"
+    assert_eq "1" "$_called"
+
+}
+
+test_pm_register_fail() {
+    local _called=0
+    pm_test1() { _called=1; }
+    pm_test2() { _called=2; }
+
+    pm_register "test" "pm_test1" 1>/dev/null 2>&1
+    assert_eq "0" "$?"
+
+    pm_register "test" "pm_test2" 1>/dev/null 2>&1
+    assert_eq "1" "$?"
+    assert_eq "pm_test1" "${package_manager[test]}"
+}
+
 adm_test() {
     _target="test_"$1
 
@@ -61,8 +94,8 @@ main() {
     local target=$1
 
     local targets=()
-    if [[ "$target" = "all" ]] ; then
-        targets=("find_setups" "extract_packages")
+    if [[ "$target" = "all" || "$target" = "" ]] ; then
+        targets=("${all_targets[@]}")
     else
         targets=( "${argv[@]}" )
     fi

@@ -4,7 +4,7 @@
 # Imports
 ####
 source "./lib.sh"
-
+source "./package_manager.sh"
 ####
 # CONFIGS and VARS
 ####
@@ -18,6 +18,7 @@ _packages=()
 ####
 reset_setup() {
     _packages=()
+    pm_reset
 }
 
 
@@ -39,7 +40,9 @@ extract_packages() {
     fi
 
     for p in "${packages[@]}"; do
+        echo $p
         case p in
+            #FIXME should be `pm:*)` but it doesnt work
             *)
                 _packages+=( "${p}" )
                 ;;
@@ -51,44 +54,6 @@ extract_packages() {
     done
 
     return 0
-}
-
-declare -A package_managers
-package_manager["pm"]="adm_pacman"
-
-adm_pacman() {
-    local command="$1"
-    local package="${2#pm:}"
-
-    case $command in
-        install) sudo pacman -S $package ;;
-        *) err "Invalid command: $command"
-    esac
-}
-
-install_packages() {
-    for pcg in "${_packages[@]}"; do
-        adm_pacman "install" "$pcg"
-    done
-}
-
-
-
-OK="true"
-
-assert_eq() {
-    local expected="$1"
-    local result="$2"
-
-    if diff <(printf -- "$expected") <(printf -- "$result") >/dev/null 2>&1; then
-        OK="true"
-    else
-        OK="false"
-        echo "Expected | Result "
-        diff <(printf -- "$expected") <(printf -- "$result") -y
-        printf -- "\n"
-    fi
-
 }
 
 _main() {
