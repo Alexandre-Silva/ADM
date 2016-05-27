@@ -1,5 +1,5 @@
 #!/bin/bash
 
 packages=(
-  'pm:fortune'
+  'pm:fortune-mod'
 )

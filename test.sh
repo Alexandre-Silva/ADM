@@ -40,10 +40,13 @@ assert_eq() {
 }
 
 test_find_setups() {
-    expected="./test/test1.setup.sh\n./test/test2.setup.sh"
     find_setups .
 
-    assert_eq "$expected" "$ret"
+    assert_eq "2" ${#ret[@]}
+    assert_eq "./test/test1.setup.sh" "${ret[0]}"
+    assert_eq "./test/test2.setup.sh" "${ret[1]}"
+
+
 }
 
 test_extract_packages() {

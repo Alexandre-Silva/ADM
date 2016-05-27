@@ -31,7 +31,10 @@ find_setups() {
     ret=()
     local root_dir="$1"
 
-    ret=( "$(find "$root_dir" -type f -name "*.setup.sh" | sort)" )
+    for setup in $(find "$root_dir" -type f -name "*.setup.sh" | sort ); do
+        ret+=( "$setup" )
+    done
+
     return 0
 }
 
@@ -39,6 +42,8 @@ find_setups() {
 extract_packages() {
     local file="$1"
     ret=()
+
+    unset packages
 
     source "$file"
 
@@ -49,7 +54,7 @@ extract_packages() {
     fi
 
     for p in "${packages[@]}"; do
-        ret+=( "${p}" )
+        ret+=( "$p" )
     done
 
     return 0
@@ -58,7 +63,10 @@ extract_packages() {
 install_setups() {
     ret=()
 
-    find_setups && local setups=("${ret[@]}")
+    pm_init
+
+    find_setups "$DOTFILES_ROOT" && local setups=( ${ret[*]} )
+
     for setup in "${setups[@]}"; do
         extract_packages "$setup" || return 0
         pm_install "${ret[@]}"
@@ -78,4 +86,4 @@ adm_main() {
     esac
 }
 
-adm_main
+adm_main "$@"
