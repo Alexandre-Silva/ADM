@@ -57,6 +57,9 @@ pm_install() {
             # convert long string to actual array of packages
             local packages_array=( ${packages[$suffix]} )
             "${package_manager[$suffix]}" install "${packages_array[@]}"
+
+            local ret_code=$?
+            [[ $ret_code -ne 0 ]] && return $ret_code
         else
             error "There is no package manager for suffix: $suffix"
             return 1

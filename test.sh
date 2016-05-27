@@ -3,8 +3,8 @@
 ####
 # Imports
 ####
-. "./adm.sh"
-. "./lib.sh"
+source "./adm.sh" >/dev/null 2>&1 # main required commands but we are just testing
+source "./lib.sh"
 
 ####
 # CONFIGS and VARS
@@ -16,7 +16,9 @@ all_targets=(
     "extract_packages"
     "pm_register_ok"
     "pm_register_fail"
+    "pm_install_nil"
     "pm_install_1suffix"
+    "pm_install_2suffix"
 )
 
 ####
@@ -47,8 +49,8 @@ test_find_setups() {
 test_extract_packages() {
     extract_packages "./test/test1.setup.sh"
 
-    assert_eq "1" "${#_ret[@]}"
-    assert_eq "pm:fortune" "${_ret[0]}"
+    assert_eq "1" "${#ret[@]}"
+    assert_eq "pm:fortune" "${ret[0]}"
 }
 
 test_pm_register_ok() {
@@ -77,25 +79,77 @@ test_pm_register_fail() {
     assert_eq "pm_test1" "${package_manager[test]}"
 }
 
+
+test_pm_install_nil() {
+    pm_install
+
+    assert_eq "0" "$?"
+}
+
 test_pm_install_1suffix() {
+    local called=0
     pm_suffixA() {
         local args=( "$@" )
         local packages=()
         packages+=( "${args[@]:1}" )
 
+        called=1
+
         assert_eq "install" "${args[0]}"
         assert_eq "foo"     "${packages[0]}"
         assert_eq "bar"     "${packages[1]}"
+
+        return 77 # random number different than 0, 1, and 127
     }
 
     pm_register "suffixA" "pm_suffixA" 1>/dev/null 2>&1
 
     local packages=( "suffixA:foo" "suffixA:bar" )
-
     pm_install "${packages[@]}"
-    assert_eq "0" "$?"
+
+    assert_eq "77" "$?"
+    assert_eq "1" "$called"
 }
 
+test_pm_install_2suffix() {
+    local calledA=0
+    pm_suffixA() {
+        local args=( "$@" )
+        local packages=()
+        packages+=( "${args[@]:1}" )
+
+        calledA=1
+
+        assert_eq "install" "${args[0]}"
+        assert_eq "foo"     "${packages[0]}"
+
+        return 0
+    }
+
+    local calledB=0
+    pm_suffixB() {
+        local args=( "$@" )
+        local packages=()
+        packages+=( "${args[@]:1}" )
+
+        calledB=1
+
+        assert_eq "install" "${args[0]}"
+        assert_eq "bar"     "${packages[0]}"
+
+        return 0
+    }
+
+    pm_register "suffixA" "pm_suffixA" 1>/dev/null 2>&1
+    pm_register "suffixB" "pm_suffixB" 1>/dev/null 2>&1
+
+    local packages=( "suffixA:foo" "suffixB:bar" )
+    pm_install "${packages[@]}"
+
+    assert_eq "0" "$?"
+    assert_eq "1" "$calledA"
+    assert_eq "1" "$calledB"
+}
 
 
 adm_test() {

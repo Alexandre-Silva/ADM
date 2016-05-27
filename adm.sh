@@ -42,14 +42,14 @@ extract_packages() {
 
     source "$file"
 
-    # is `packages` defined
+    # is `packages` defined ?
     if [ -z ${packages+x} ]; then
         warn 'Var `packages` unset in '"$file"
         return 1
     fi
 
     for p in "${packages[@]}"; do
-        _ret+=( "${p}" )
+        ret+=( "${p}" )
     done
 
     return 0
@@ -67,10 +67,15 @@ install_setups() {
     return 0
 }
 
+adm_main() {
+    local args=( "$@" )
+    local command="${args[0]}"
+    #TODO check if commands exists and print usage
 
-
-_main() {
-    for setup in $(find_setups "$DOTFILES_ROOT"); do
-        extract $setup
-    done
+    case $command in
+        install) install_setups ;;
+        *) error "Invalid commands: $command" ;;
+    esac
 }
+
+adm_main
