@@ -5,56 +5,69 @@
 ####
 source "./lib.sh"
 source "./package_manager.sh"
+
 ####
 # CONFIGS and VARS
 ####
 DOTFILES_ROOT=${DOTFILES_ROOT:-$(pwd)}
 
-_packages=()
-
+ret=()
 
 ####
 # Funcs
 ####
+
+adm_init() {
+    pm_init
+}
+
 reset_setup() {
-    _packages=()
+    ret=()
     pm_reset
 }
 
 
 find_setups() {
+    ret=()
     local root_dir="$1"
 
-    printf -- "%s\n" $(find "$root_dir" -type f -name "*.setup.sh" | sort)
+    ret=( "$(find "$root_dir" -type f -name "*.setup.sh" | sort)" )
+    return 0
 }
+
 
 extract_packages() {
     local file="$1"
+    ret=()
 
     source "$file"
 
     # is `packages` defined
     if [ -z ${packages+x} ]; then
         warn 'Var `packages` unset in '"$file"
-        return
+        return 1
     fi
 
     for p in "${packages[@]}"; do
-        echo $p
-        case p in
-            #FIXME should be `pm:*)` but it doesnt work
-            *)
-                _packages+=( "${p}" )
-                ;;
-            pm*)
-                warn "In file: $file \n"
-                warn "Invalid package: $p \n"
-                ;;
-        esac
+        _ret+=( "${p}" )
     done
 
     return 0
 }
+
+install_setups() {
+    ret=()
+
+    find_setups && local setups=("${ret[@]}")
+    for setup in "${setups[@]}"; do
+        extract_packages "$setup" || return 0
+        pm_install "${ret[@]}"
+    done
+
+    return 0
+}
+
+
 
 _main() {
     for setup in $(find_setups "$DOTFILES_ROOT"); do

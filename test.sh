@@ -16,6 +16,7 @@ all_targets=(
     "extract_packages"
     "pm_register_ok"
     "pm_register_fail"
+    "pm_install_1suffix"
 )
 
 ####
@@ -37,17 +38,17 @@ assert_eq() {
 }
 
 test_find_setups() {
-    expected="./test.setup.sh\n./test/test.setup.sh"
-    result=$(find_setups .)
+    expected="./test/test1.setup.sh\n./test/test2.setup.sh"
+    find_setups .
 
-    assert_eq "$expected" "$result"
+    assert_eq "$expected" "$ret"
 }
 
 test_extract_packages() {
-    extract_packages "./test/test.setup.sh"
+    extract_packages "./test/test1.setup.sh"
 
-    assert_eq "1" "${#_packages[@]}"
-    assert_eq "pm:fortune" "${_packages[0]}"
+    assert_eq "1" "${#_ret[@]}"
+    assert_eq "pm:fortune" "${_ret[0]}"
 }
 
 test_pm_register_ok() {
@@ -75,6 +76,27 @@ test_pm_register_fail() {
     assert_eq "1" "$?"
     assert_eq "pm_test1" "${package_manager[test]}"
 }
+
+test_pm_install_1suffix() {
+    pm_suffixA() {
+        local args=( "$@" )
+        local packages=()
+        packages+=( "${args[@]:1}" )
+
+        assert_eq "install" "${args[0]}"
+        assert_eq "foo"     "${packages[0]}"
+        assert_eq "bar"     "${packages[1]}"
+    }
+
+    pm_register "suffixA" "pm_suffixA" 1>/dev/null 2>&1
+
+    local packages=( "suffixA:foo" "suffixA:bar" )
+
+    pm_install "${packages[@]}"
+    assert_eq "0" "$?"
+}
+
+
 
 adm_test() {
     _target="test_"$1

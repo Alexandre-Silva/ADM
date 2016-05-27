@@ -1,9 +1,11 @@
 #!/usr/bin/bash
 
-adm_pacman() {
+pm_pacman() {
     local args=("$@")
     local command=${args[1]}
-    local packages=(${args[@]:1})
+
+    local packages=()
+    packages+=( "${args[@]:1}" )
 
     echo "${packages[@]}"
 
@@ -13,19 +15,15 @@ adm_pacman() {
 
         (( i++ ))
     done
-    echo "${packages[@]}"
 
     case $command in
         install) sudo pacman -S "${packages[@]}" ;;
-        *) err "Invalid command: $command"
+        *)       err "Invalid command: $command"; return 1 ;;
     esac
+
+    return 0
 }
 
-install_packages() {
-    for pcg in "${_packages[@]}"; do
-        adm_pacman "install" "$pcg"
-    done
-}
 
 main() {
     if [ -x "/usr/bin/pacman" ]; then
