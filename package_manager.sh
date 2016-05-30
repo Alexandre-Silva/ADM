@@ -14,7 +14,6 @@ declare -A package_manager
 # Funcs
 ####
 
-
 pm_register() {
     # the prefix that associates a package to a particular package manager
     # E.g.: `pm` is the system's package manager which in ArchLinux is `pacman`
@@ -35,14 +34,51 @@ pm_register() {
     return 0
 }
 
+
 # This function receives a list packages to install (with suffix)
 # and calls the apropriate package manager for each of them
 pm_install() {
+    local packages=( "$@" )
+
+    __pm_call_func "install" "${packages}"
+    return $?
+}
+
+# Like `pm_install` but removes instead of installing the packages
+pm_remove() {
+    local packages=( "$@" )
+
+    __pm_call_func "remove" "${packages}"
+    return $?
+
+}
+
+pm_init() {
+    for pm in $(find "package_manager.d" -type f -name "*.sh"); do
+        source "$pm"
+    done
+}
+
+pm_reset() {
+    package_manager=()
+}
+
+
+####
+# private Funcs
+####
+
+
+# performs `action` to each packge in `raw_packges` using the package install in its suffix
+__pm_call_func(){
     local args=( "$@" )
+    local action="${args[0]}"
+    local raw_packages="${args[@]:1}"
+
     declare -A packages
 
     # aggregates packages by suffix in `packages`
-    for pckg in "${args[@]}"; do
+    for pckg in "${raw_packages[@]}" ; do
         local suffix="${pckg%%:*}" # removes the suffix (excluding the `:`)
 
         # Since bash does not support arrays of arrays we use a really long string
@@ -56,7 +92,7 @@ pm_install() {
 
             # convert long string to actual array of packages
             local packages_array=( ${packages[$suffix]} )
-            "${package_manager[$suffix]}" install "${packages_array[@]}"
+            "${package_manager[$suffix]}" "$action" "${packages_array[@]}"
 
             local ret_code=$?
             [[ $ret_code -ne 0 ]] && return $ret_code
@@ -67,15 +103,4 @@ pm_install() {
     done
 
     return 0
-}
-
-
-pm_init() {
-    for pm in $(find "package_manager.d" -type f -name "*.sh"); do
-        source "$pm"
-    done
-}
-
-pm_reset() {
-    package_manager=()
 }

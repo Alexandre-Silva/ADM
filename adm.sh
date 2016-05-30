@@ -60,6 +60,7 @@ extract_packages() {
     return 0
 }
 
+# finds all *.setup.sh files and installs the all `packages`
 install_setups() {
     ret=()
 
@@ -75,13 +76,29 @@ install_setups() {
     return 0
 }
 
+# finds all *.setup.sh files and removes the all `packages`
+remove_setups() {
+    ret=()
+
+    find_setups "$DOTFILES_ROOT" && local setups=( ${ret[@]} )
+    for setup in "${setups[@]}"; do
+        extract_packages "$setup" || return 0
+        pm_remove "${ret[@]}"
+    done
+
+    return 0
+}
+
 adm_main() {
     local args=( "$@" )
     local command="${args[0]}"
     #TODO check if commands exists and print usage
 
+    pm_init
+
     case $command in
         install) install_setups ;;
+        remove) remove_setups ;;
         *) error "Invalid commands: $command" ;;
     esac
 }

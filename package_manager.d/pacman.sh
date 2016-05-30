@@ -17,7 +17,8 @@ pm_pacman() {
 
     case $command in
         install) sudo pacman -S --noconfirm "${packages[@]}" ;;
-        *)       error "Invalid command: $command"; return 1 ;;
+        remove) sudo pacman -Rns --noconfirm "${packages[@]}" ;;
+        *)       err "Invalid command: $command"; return 1 ;;
     esac
 
     return 0

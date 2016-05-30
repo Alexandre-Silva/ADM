@@ -53,7 +53,7 @@ test_extract_packages() {
     extract_packages "./test/test1.setup.sh"
 
     assert_eq "1" "${#ret[@]}"
-    assert_eq "pm:fortune" "${ret[0]}"
+    assert_eq "pm:fortune-mod" "${ret[0]}"
 }
 
 test_pm_register_ok() {
