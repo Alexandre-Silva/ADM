@@ -25,14 +25,15 @@ all_targets=(
 # Funcs
 ####
 assert_eq() {
-    expected="$1"
-    result="$2"
+    local expected="$1"
+    local result="$2"
+    local msg="$3"
 
     if diff <(printf -- "$expected") <(printf -- "$result") >/dev/null 2>&1; then
         OK="true"
     else
         OK="false"
-        echo "Expected | Result "
+        echo "Expected | Result -- $msg"
         diff <(printf -- "$expected") <(printf -- "$result") -y
         printf -- "\n"
     fi
@@ -90,13 +91,13 @@ test_pm_install_nil() {
 }
 
 test_pm_install_1suffix() {
-    local called=0
+    local p_called=0
     pm_suffixA() {
         local args=( "$@" )
         local packages=()
         packages+=( "${args[@]:1}" )
 
-        called=1
+        p_called=1
 
         assert_eq "install" "${args[0]}"
         assert_eq "foo"     "${packages[0]}"
@@ -111,7 +112,7 @@ test_pm_install_1suffix() {
     pm_install "${packages[@]}"
 
     assert_eq "77" "$?"
-    assert_eq "1" "$called"
+    assert_eq "1" "$p_called" "pm_suffixA call"
 }
 
 test_pm_install_2suffix() {

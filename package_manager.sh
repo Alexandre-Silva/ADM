@@ -8,7 +8,7 @@ source "./lib.sh"
 ####
 # CONFIGS and VARS
 ####
-declare -A package_manager
+declare -A package_manager=()
 
 ####
 # Funcs
@@ -40,7 +40,7 @@ pm_register() {
 pm_install() {
     local packages=( "$@" )
 
-    __pm_call_func "install" "${packages}"
+    __pm_call_func "install" "${packages[@]}"
     return $?
 }
 
@@ -73,12 +73,14 @@ pm_reset() {
 __pm_call_func(){
     local args=( "$@" )
     local action="${args[0]}"
-    local raw_packages="${args[@]:1}"
+    local raw_packages=( "${args[@]:1}" )
 
-    declare -A packages
+    local -A packages
 
     # aggregates packages by suffix in `packages`
     for pckg in "${raw_packages[@]}" ; do
+        [ -z "$pckg" ] && continue
+
         local suffix="${pckg%%:*}" # removes the suffix (excluding the `:`)
 
         # Since bash does not support arrays of arrays we use a really long string

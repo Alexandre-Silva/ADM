@@ -42,8 +42,7 @@ find_setups() {
 extract_packages() {
     local file="$1"
     ret=()
-
-    unset packages
+    __clean_setup_env
 
     source "$file"
 
@@ -64,13 +63,13 @@ extract_packages() {
 install_setups() {
     ret=()
 
-    pm_init
-
     find_setups "$DOTFILES_ROOT" && local setups=( ${ret[*]} )
 
     for setup in "${setups[@]}"; do
         extract_packages "$setup" || return 0
         pm_install "${ret[@]}"
+
+        run_function "install" "$setup"
     done
 
     return 0
@@ -89,6 +88,25 @@ remove_setups() {
     return 0
 }
 
+# runs a `func` from the given `setup` file
+run_function() {
+    local func="$1"
+    local setup="$2"
+    ret=()
+    __clean_setup_env
+
+    if [ ! -f "$setup" ]; then
+        error "Cant run $func of non existent setup file: $setup"
+        return 1
+    fi
+
+    source "$setup"
+
+    "$func"
+
+    return $?
+}
+
 adm_main() {
     local args=( "$@" )
     local command="${args[0]}"
@@ -103,4 +121,17 @@ adm_main() {
     esac
 }
 
+
+####
+# Private Funcs
+####
+__clean_setup_env() {
+    packages=()
+    install(){ return 0; }
+}
+
+
+####
+# Main
+####
 adm_main "$@"
