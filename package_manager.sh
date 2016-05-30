@@ -5,14 +5,10 @@
 ####
 source "./lib.sh"
 
-####
-# CONFIGS and VARS
-####
+##### CONFIGS and VARS
 declare -A package_manager=()
 
-####
-# Funcs
-####
+##### Funcs
 
 pm_register() {
     # the prefix that associates a package to a particular package manager
@@ -64,13 +60,10 @@ pm_reset() {
 }
 
 
-####
-# private Funcs
-####
-
+##### private Funcs
 
 # performs `action` to each packge in `raw_packges` using the package install in its suffix
-__pm_call_func(){
+__pm_call_func() {
     local args=( "$@" )
     local action="${args[0]}"
     local raw_packages=( "${args[@]:1}" )
