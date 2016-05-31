@@ -1,5 +1,11 @@
 #!/usr/bin/bash
 
+
+PACMAN_FLAGS=(
+    "--noconfirm"
+    "--needed" # does not reistall up-to-date packages
+)
+
 pm_pacman() {
     local args=("$@")
     local command=${args[0]}
@@ -16,8 +22,8 @@ pm_pacman() {
     done
 
     case $command in
-        install) sudo pacman -S --noconfirm "${packages[@]}" ;;
-        remove) sudo pacman -Rns --noconfirm "${packages[@]}" ;;
+        install) sudo pacman -S "${PACMAN_FLAGS[@]}" "${packages[@]}" ;;
+        remove)  sudo pacman -Rns "${PACMAN_FLAGS[@]}" "${packages[@]}" ;;
         *)       err "Invalid command: $command"; return 1 ;;
     esac
 
