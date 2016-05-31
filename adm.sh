@@ -59,6 +59,24 @@ extract_packages() {
     return 0
 }
 
+# installs the provided `setup` file
+install_setup() {
+    local setup=$1
+    ret=()
+
+    if [ ! -f "$setup" ]; then
+        error "Cant install non existent setup file: $setup"
+        return 1
+    fi
+
+    extract_packages "$setup" || return 0
+    pm_install "${ret[@]}"
+
+    run_function "install" "$setup"
+
+    return $?
+}
+
 # finds all *.setup.sh files and installs the all `packages`
 install_setups() {
     ret=()
@@ -66,10 +84,10 @@ install_setups() {
     find_setups "$DOTFILES_ROOT" && local setups=( ${ret[*]} )
 
     for setup in "${setups[@]}"; do
-        extract_packages "$setup" || return 0
-        pm_install "${ret[@]}"
+        install_setup "$setup"
 
-        run_function "install" "$setup"
+        local ret_code=$?
+        [ $ret_code -ne 0 ] && return $ret_code
     done
 
     return 0
@@ -110,17 +128,24 @@ run_function() {
 adm_main() {
     local args=( "$@" )
     local command="${args[0]}"
-    #TODO check if commands exists and print usage
 
     pm_init
 
     case $command in
-        install) install_setups ;;
+        install)
+            if [ -n "${args[1]}" ]; then
+                install_setup "${args[1]}"
+            else
+                echo "No setup provided. Installing ALL of them."
+                install_setups
+            fi
+            ;;
+
         remove) remove_setups ;;
+
         *) error "Invalid commands: $command" ;;
     esac
 }
-
 
 ####
 # Private Funcs
