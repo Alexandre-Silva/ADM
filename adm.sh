@@ -10,6 +10,7 @@ source "./package_manager.sh"
 # CONFIGS and VARS
 ####
 DOTFILES_ROOT=${DOTFILES_ROOT:-$(pwd)}
+ADM_INSTALL_DIR="/tmp/ADM"
 
 ret=()
 
@@ -69,12 +70,23 @@ adm_install_setup() {
         return 1
     fi
 
-    extract_packages "$setup" || return 0
-    adm_pm_install "${ret[@]}"
+    if [ -f "$ADM_INSTALL_DIR" ] || [ -d "$ADM_INSTALL_DIR" ]; then
+        error "$ADM_INSTALL_DIR already exists. Possibly previous installion did not exit safely."
+        return 1;
+    fi
+
+    local curr_dir=$(pwd)
+    mkdir "$ADM_INSTALL_DIR" && cd "$ADM_INSTALL_DIR"
+
+    adm_extract_packages "$setup" || return 1
+    pm_install "${ret[@]}"
 
     __run_function "install" "$setup"
+    local ret_code=$?
 
-    return $?
+    cd "$curr_dir"
+    rm -rf "$ADM_INSTALL_DIR"
+    return $ret_code
 }
 
 # finds all *.setup.sh files and installs the all `packages`
@@ -83,6 +95,7 @@ adm_install_setups() {
 
     adm_find_setups "$DOTFILES_ROOT" && local setups=( ${ret[*]} )
 
+    local setup
     for setup in "${setups[@]}"; do
         adm_install_setup "$setup"
 
@@ -127,7 +140,6 @@ adm_load_profile() {
 adm_main() {
     local args=( "$@" )
     local command="${args[0]}"
-
 
     pm_init
 
@@ -185,6 +197,8 @@ __clean_setup_env() {
 ####
 # Main
 ####
+set -e
+
 [ -n "$ZSH_VERSION" ] && emulate bash
 adm_main "$@"
 [ -n "$ZSH_VERSION" ] && emulate zsh

@@ -18,7 +18,7 @@ pm_pacman() {
     while [[ $i -lt $packages_len ]]; do
         packages[i]="${packages[i]#pm:}"
 
-        (( i++ ))
+        i=$(( i + 1 ))
     done
 
     case $command in
