@@ -9,3 +9,7 @@ install() {
 
     return 0;
 }
+
+profile() {
+    export TEST_PROFILE="asdaadasda"
+}
