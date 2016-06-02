@@ -25,3 +25,9 @@ rather than
 '''
 
 Otherwise any configuration (aliases, environment variables, functions, etc) will not be exported in to the current shell. THis is because the "./adm ..." will execute the script in a subshell.
+
+** *.setup.sh
+
+This files are all source into the current shell. Thefore, it's a good idea to
+use some helper functions to prevent polluting the shell's environment.
+TODO: put example
