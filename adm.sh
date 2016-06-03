@@ -9,8 +9,8 @@ source "./package_manager.sh"
 ####
 # CONFIGS and VARS
 ####
-DOTFILES_ROOT=${DOTFILES_ROOT:-$(pwd)}
-ADM_INSTALL_DIR="/tmp/ADM"
+DOTFILES=${DOTFILES:-$(pwd)}
+ADM_INSTALL_DIR=${ADM_INSTALL_DIR:-"/tmp/ADM"}
 
 ret=()
 
@@ -29,10 +29,11 @@ adm_reset_setup() {
 
 
 adm_find_setups() {
-    ret=()
     local root_dir="$1"
+    local setup
+    ret=()
 
-    for setup in $(find "$root_dir" -type f -name "*.setup.sh" | sort ); do
+    for setup in $(find "$root_dir" -type f -name "*.setup.sh" | sort); do
         ret+=( "$setup" )
     done
 
@@ -43,8 +44,8 @@ adm_find_setups() {
 adm_extract_packages() {
     local file="$1"
     ret=()
-    __clean_setup_env
 
+    __clean_setup_env
     source "$file"
 
     # is `packages` defined ?
@@ -93,7 +94,7 @@ adm_install_setup() {
 adm_install_setups() {
     ret=()
 
-    adm_find_setups "$DOTFILES_ROOT" && local setups=( ${ret[*]} )
+    adm_find_setups "$DOTFILES" && local setups=( ${ret[*]} )
 
     local setup
     for setup in "${setups[@]}"; do
@@ -111,7 +112,7 @@ adm_install_setups() {
 remove_setups() {
     ret=()
 
-    adm_find_setups "$DOTFILES_ROOT" && local setups=( ${ret[@]} )
+    adm_find_setups "$DOTFILES" && local setups=( ${ret[@]} )
     for setup in "${setups[@]}"; do
         adm_extract_packages "$setup" || return 0
         pm_remove "${ret[@]}"
@@ -143,7 +144,7 @@ adm_main() {
 
     pm_init
 
-    adm_find_setups "$DOTFILES_ROOT" && local setups=( ${ret[*]} )
+    adm_find_setups "$DOTFILES" && local setups=( ${ret[*]} )
 
     case $command in
         install)
