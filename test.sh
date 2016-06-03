@@ -11,15 +11,7 @@ source "./lib.sh"
 ####
 OK="true"
 
-all_targets=(
-    "find_setups"
-    "extract_packages"
-    "pm_register_ok"
-    "pm_register_fail"
-    "pm_install_nil"
-    "pm_install_1suffix"
-    "pm_install_2suffix"
-)
+all_targets=()
 
 ####
 # Funcs
@@ -40,8 +32,9 @@ assert_eq() {
 
 }
 
+all_targets+=( "find_setups" )
 test_find_setups() {
-    find_setups .
+    adm_find_setups .
 
     assert_eq "2" ${#ret[@]}
     assert_eq "./test/test1.setup.sh" "${ret[0]}"
@@ -50,13 +43,15 @@ test_find_setups() {
 
 }
 
+all_targets+=( "extract_packages" )
 test_extract_packages() {
-    extract_packages "./test/test1.setup.sh"
+    adm_extract_packages "./test/test1.setup.sh"
 
     assert_eq "1" "${#ret[@]}"
     assert_eq "pm:fortune-mod" "${ret[0]}"
 }
 
+all_targets+=( "pm_register_ok" )
 test_pm_register_ok() {
     local _called=0
     pm_test() { _called=1; }
@@ -70,6 +65,7 @@ test_pm_register_ok() {
 
 }
 
+all_targets+=( "pm_register_fail" )
 test_pm_register_fail() {
     local _called=0
     pm_test1() { _called=1; }
@@ -84,12 +80,14 @@ test_pm_register_fail() {
 }
 
 
+all_targets+=( "pm_install_nil" )
 test_pm_install_nil() {
     pm_install
 
     assert_eq "0" "$?"
 }
 
+all_targets+=( "pm_install_1suffix" )
 test_pm_install_1suffix() {
     local p_called=0
     pm_suffixA() {
@@ -115,6 +113,7 @@ test_pm_install_1suffix() {
     assert_eq "1" "$p_called" "pm_suffixA call"
 }
 
+all_targets+=( "pm_install_2suffix" )
 test_pm_install_2suffix() {
     local calledA=0
     pm_suffixA() {
@@ -155,6 +154,28 @@ test_pm_install_2suffix() {
     assert_eq "1" "$calledB"
 }
 
+all_targets+=( btr_unset )
+test_btr_unset() {
+    local a=1
+    btr_unset "a"
+    assert_eq "" "$a" '`a` was not unset'
+
+   local b=1
+   local c=1
+   btr_unset "b" "c"
+   assert_eq "" "$b" '`b` was not unset'
+   assert_eq "" "$c" '`c` was not unset'
+
+}
+
+all_targets+=( btr_unset_f )
+test_btr_unset_f() {
+    f() { return 0; }
+    btr_unset_f "-f" "f"
+    f >/dev/null 2>&1 # call f
+    assert_eq "127" "$?" '`f` was not unset'
+
+}
 
 adm_test() {
     _target="test_"$1
@@ -164,7 +185,7 @@ adm_test() {
     running "$_target"
     "$_target"
 
-    reset_setup
+    adm_reset_setup
 
     if [ "$OK" = "true" ]; then ok; else error; fi
 }

@@ -142,12 +142,13 @@ adm_main() {
     local args=( "$@" )
     local command="${args[0]}"
 
-    pm_init
 
     adm_find_setups "$DOTFILES" && local setups=( ${ret[*]} )
 
     case $command in
         install)
+            pm_init
+
             if [ -n "${args[1]}" ]; then
                 adm_install_setup "${args[1]}"
             else
@@ -156,7 +157,7 @@ adm_main() {
             fi
             ;;
 
-        remove) remove_setups ;;
+        remove) pm_init; remove_setups ;;
         profile) adm_load_profile "${args[1]}" ;;
         profiles) adm_load_profile "${setups[@]}" ;;
 
@@ -190,16 +191,25 @@ __run_function() {
 }
 
 __clean_setup_env() {
-    unset packages
-    unset -f install profile
+    local vars=( "packages" )
+    local functions=( "install" "profile" )
+
+    btr_unset "${bars[@]}"
+    btr_unset_f "${functions[@]}"
 }
 
 
 ####
 # Main
 ####
-set -e
+
+# only exec if not beeing source by other script
+# usually test.sh
+echo "${BASH_SOURCE[@]}"
+#if [[ "${BASH_SOURCE[0]}" == "${0}" ]] ; then
 
 [ -n "$ZSH_VERSION" ] && emulate bash
 adm_main "$@"
 [ -n "$ZSH_VERSION" ] && emulate zsh
+
+#fi

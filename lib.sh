@@ -63,3 +63,37 @@ function symlinkifne {
     ln -s ~/.dotfiles/$1 $1
     echo -en '\tlinked';ok
 }
+
+
+# Better unset, unsets all variables passed as names in `args`.
+# It's smart about and unsets iff they are defined.
+function btr_unset() {
+    local args=( "$@" )
+
+    local target
+    for target in "${args[@]}"; do
+        [ -z "$(eval echo $(printf '${%s+x}' "$target"))" ] || unset "${opts[@]}" "$target"
+    done
+}
+
+# Like btr_unset but for functions
+function btr_unset_f() {
+    local args=( "$@" )
+
+    if [ -n "$ZSH_VERSION" ]; then
+        local target
+        for target in "${args[@]}"; do
+            if [ "$(type -w $target | cut -d ' ' -f 2)" = function ] ; then
+                unset -f $target
+            fi
+        done
+
+    else # assume BASH or equivalent
+        local target
+        for target in "${args[@]}"; do
+            if [ -n "$(type -t $target)" ] && [ "$(type -t $target)" = function ]; then
+                unset -f $target
+            fi
+        done
+    fi
+}
