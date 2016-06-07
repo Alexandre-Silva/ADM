@@ -22,12 +22,6 @@ adm_init() {
     pm_init
 }
 
-adm_reset_setup() {
-    ret=()
-    pm_reset
-}
-
-
 adm_find_setups() {
     local root_dir="$1"
     local setup
@@ -39,6 +33,7 @@ adm_find_setups() {
 
     return 0
 }
+TO_BE_UNSET_f+=( "adm_find_setups" )
 
 
 adm_extract_packages() {
@@ -60,6 +55,7 @@ adm_extract_packages() {
 
     return 0
 }
+TO_BE_UNSET_f+=( "adm_extract_packages" )
 
 # installs the provided `setup` file
 adm_install_setup() {
@@ -82,13 +78,14 @@ adm_install_setup() {
     adm_extract_packages "$setup" || return 1
     pm_install "${ret[@]}"
 
-    __run_function "install" "$setup"
+    __run_function "st_install" "$setup"
     local ret_code=$?
 
     cd "$curr_dir"
     rm -rf "$ADM_INSTALL_DIR"
     return $ret_code
 }
+TO_BE_UNSET_f+=( "adm_install_setup" )
 
 # finds all *.setup.sh files and installs the all `packages`
 adm_install_setups() {
@@ -106,10 +103,11 @@ adm_install_setups() {
 
     return 0
 }
+TO_BE_UNSET_f+=( "adm_install_setups" )
 
 
 # finds all *.setup.sh files and removes the all `packages`
-remove_setups() {
+adm_remove_setups() {
     ret=()
 
     adm_find_setups "$DOTFILES" && local setups=( ${ret[@]} )
@@ -120,6 +118,7 @@ remove_setups() {
 
     return 0
 }
+TO_BE_UNSET_f+=( "adm_remove_setups" )
 
 # runs the "profile" function of the provided `setups` files
 adm_load_profile() {
@@ -132,16 +131,16 @@ adm_load_profile() {
             error "Non existent setup file: $setup"
             return 1
         fi
-        __run_function "profile" "$setup" || return $?
+        __run_function "st_profile" "$setup" || return $?
     done
 
     return $?
 }
+TO_BE_UNSET_f+=( "adm_load_profile" )
 
 adm_main() {
     local args=( "$@" )
     local command="${args[0]}"
-
 
     adm_find_setups "$DOTFILES" && local setups=( ${ret[*]} )
 
@@ -157,17 +156,19 @@ adm_main() {
             fi
             ;;
 
-        remove) pm_init; remove_setups ;;
+        remove) pm_init; adm_remove_setups ;;
         profile) adm_load_profile "${args[1]}" ;;
         profiles) adm_load_profile "${setups[@]}" ;;
 
-        *) error "Invalid commands: $command" ;;
+        *) error "Invalid commands: $command" ; return 1 ;;
     esac
 
     __clean_setup_env
+    btr_unset_marked
 
     return 0
 }
+TO_BE_UNSET_f+=( "adm_main" )
 
 ####
 # Private Funcs
@@ -191,17 +192,16 @@ __run_function() {
 
     return $?
 }
+TO_BE_UNSET_f+=( "__run_function" )
 
 __clean_setup_env() {
-
-    #pm_clean
-
     local vars=( "packages" )
     btr_unset "${bars[@]}"
 
-    local functions=( "install" "profile" )
+    local functions=( "st_install" "st_profile" )
     btr_unset_f "${functions[@]}"
 }
+TO_BE_UNSET_f+=( "__clean_setup_env" )
 
 
 ####

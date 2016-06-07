@@ -5,6 +5,7 @@ PACMAN_FLAGS=(
     "--noconfirm"
     "--needed" # does not reistall up-to-date packages
 )
+TO_BE_UNSET+=( "PACMAN_FLAGS")
 
 pm_pacman() {
     local args=("$@")
@@ -29,6 +30,7 @@ pm_pacman() {
 
     return 0
 }
+TO_BE_UNSET_f+=( "pm_pacman" )
 
 
 main() {
@@ -41,3 +43,4 @@ main() {
 }
 
 main
+btr_unset_f main

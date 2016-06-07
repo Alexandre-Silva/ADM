@@ -8,6 +8,8 @@ source "./lib.sh"
 ##### CONFIGS and VARS
 declare -A package_manager=()
 
+TO_BE_UNSET+=( packages_manager )
+
 
 ##### Funcs
 
@@ -15,7 +17,7 @@ pm_register() {
     # the prefix that associates a package to a particular package manager
     # E.g.: `pm` is the system's package manager which in ArchLinux is `pacman`
     local sufix="$1"
-    # The func to call for packages of a certain manager
+    # The func to call for _packages of a certain manager
     local func="$2"
 
     running "Binding $sufix to $func"
@@ -30,39 +32,40 @@ pm_register() {
 
     return 0
 }
+TO_BE_UNSET_f+=( "pm_register" )
 
 
-# This function receives a list packages to install (with suffix)
+# This function receives a list _packages to install (with suffix)
 # and calls the apropriate package manager for each of them
 pm_install() {
-    local packages=( "$@" )
+    local _packages=( "$@" )
 
-    __pm_call_func "install" "${packages[@]}"
+    __pm_call_func "install" "${_packages[@]}"
     return $?
 }
+TO_BE_UNSET_f+=( "pm_install" )
 
-# Like `pm_install` but removes instead of installing the packages
+# Like `pm_install` but removes instead of installing the _packages
 pm_remove() {
-    local packages=( "$@" )
+    local _packages=( "$@" )
 
-    __pm_call_func "remove" "${packages}"
+    __pm_call_func "remove" "${_packages}"
     return $?
 
 }
+TO_BE_UNSET_f+=( "pm_remove" )
 
 pm_init() {
     for pm in $(find "package_manager.d" -type f -name "*.sh"); do
         source "$pm"
     done
 }
+TO_BE_UNSET_f+=( "pm_init" )
 
 pm_reset() {
     package_manager=()
 }
-
-pm_clean() {
-
-}
+TO_BE_UNSET_f+=( "pm_reset" )
 
 ##### private Funcs
 
@@ -72,23 +75,24 @@ __pm_call_func() {
     local action="${args[0]}"
     local raw_packages=( "${args[@]:1}" )
 
-    local -A packages
+    local -A _packages
     local packages_suffixes=()
 
-    # aggregates packages by suffix in `packages`
+    # aggregates packages by suffix in `_packages`
     for pckg in "${raw_packages[@]}" ; do
         [ -z "$pckg" ] && continue
 
         local suffix="${pckg%%:*}" # removes the suffix (excluding the `:`)
 
         # Since bash does not support arrays of arrays we use a really long string
-        # containning all packages separated by spaces
-        if [[ -z ${packages["$suffix"]} ]]; then
-            packages["$suffix"]=""
+        # containning all _packages separated by spaces
+        if [[ -z "${_packages[$suffix]}" ]]; then
+            _packages[$suffix]="${pckg#*:}"
             packages_suffixes+=( "$suffix" )
+        else
+            # adds `pckg` name to `_packages` to instal
+            _packages[$suffix]+=" ${pckg#*:}"
         fi
-
-        packages["$suffix"]+=" ${pckg#*:}"  # adds `pckg` name to `packages` to install
     done
 
     # note that we could have used "${!packages[@]}" to acess the list of keys
@@ -98,8 +102,8 @@ __pm_call_func() {
     for suffix in "${packages_suffixes[@]}"; do
         if [ -n "${package_manager[$suffix]}" ]; then
 
-            # convert long string to actual array of packages
-            local packages_array=( ${packages[$suffix]} )
+            # convert long string to actual array of _packages
+            local packages_array=( "${_packages[$suffix]}" )
             "${package_manager[$suffix]}" "$action" "${packages_array[@]}"
 
             local ret_code=$?
@@ -112,3 +116,4 @@ __pm_call_func() {
 
     return 0
 }
+TO_BE_UNSET_f+=( "__pm_call_func" )
