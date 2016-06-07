@@ -164,6 +164,8 @@ adm_main() {
         *) error "Invalid commands: $command" ;;
     esac
 
+    __clean_setup_env
+
     return 0
 }
 
@@ -191,10 +193,13 @@ __run_function() {
 }
 
 __clean_setup_env() {
-    local vars=( "packages" )
-    local functions=( "install" "profile" )
 
+    #pm_clean
+
+    local vars=( "packages" )
     btr_unset "${bars[@]}"
+
+    local functions=( "install" "profile" )
     btr_unset_f "${functions[@]}"
 }
 

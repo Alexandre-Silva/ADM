@@ -8,6 +8,7 @@ source "./lib.sh"
 ##### CONFIGS and VARS
 declare -A package_manager=()
 
+
 ##### Funcs
 
 pm_register() {
@@ -59,6 +60,9 @@ pm_reset() {
     package_manager=()
 }
 
+pm_clean() {
+
+}
 
 ##### private Funcs
 
@@ -69,6 +73,7 @@ __pm_call_func() {
     local raw_packages=( "${args[@]:1}" )
 
     local -A packages
+    local packages_suffixes=()
 
     # aggregates packages by suffix in `packages`
     for pckg in "${raw_packages[@]}" ; do
@@ -78,11 +83,19 @@ __pm_call_func() {
 
         # Since bash does not support arrays of arrays we use a really long string
         # containning all packages separated by spaces
-        [[ -z ${packages["$suffix"]} ]] && packages["$suffix"]=""
+        if [[ -z ${packages["$suffix"]} ]]; then
+            packages["$suffix"]=""
+            packages_suffixes+=( "$suffix" )
+        fi
+
         packages["$suffix"]+=" ${pckg#*:}"  # adds `pckg` name to `packages` to install
     done
 
-    for suffix in "${!packages[@]}"; do
+    # note that we could have used "${!packages[@]}" to acess the list of keys
+    #  of associative array.
+    # However, this feature is not portable between bash and zsh. (at least)
+    # Hence the use of the `packges_suffixes`.
+    for suffix in "${packages_suffixes[@]}"; do
         if [ -n "${package_manager[$suffix]}" ]; then
 
             # convert long string to actual array of packages
