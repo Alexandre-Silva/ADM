@@ -103,7 +103,8 @@ __pm_call_func() {
         if [ -n "${package_manager[$suffix]}" ]; then
 
             # convert long string to actual array of _packages
-            local packages_array=( "${_packages[$suffix]}" )
+            # no the lack of "..." around _packages[$suffix]
+            local packages_array=( ${_packages[$suffix]} )
             "${package_manager[$suffix]}" "$action" "${packages_array[@]}"
 
             local ret_code=$?

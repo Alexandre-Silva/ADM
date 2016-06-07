@@ -4,12 +4,16 @@ packages=(
   'pm:fortune-mod'
 )
 
-install() {
+st_install() {
     fortune
 
     return 0;
 }
 
-profile() {
+st_profile() {
     export TEST_PROFILE="asdaadasda"
+}
+
+st_rc() {
+    export TEST_RC="asda"
 }

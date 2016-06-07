@@ -22,6 +22,11 @@ adm_init() {
     pm_init
 }
 
+adm_reset_setup() {
+    ret=()
+    pm_reset
+}
+
 adm_find_setups() {
     local root_dir="$1"
     local setup
@@ -53,6 +58,7 @@ adm_extract_packages() {
         ret+=( "$p" )
     done
 
+    __clean_setup_env
     return 0
 }
 TO_BE_UNSET_f+=( "adm_extract_packages" )
@@ -87,6 +93,7 @@ adm_install_setup() {
 }
 TO_BE_UNSET_f+=( "adm_install_setup" )
 
+
 # finds all *.setup.sh files and installs the all `packages`
 adm_install_setups() {
     ret=()
@@ -120,23 +127,6 @@ adm_remove_setups() {
 }
 TO_BE_UNSET_f+=( "adm_remove_setups" )
 
-# runs the "profile" function of the provided `setups` files
-adm_load_profile() {
-    local setups=( "$@" )
-    local setup
-    ret=()
-
-    for setup in "${setups[@]}"; do
-        if [ ! -f "$setup" ]; then
-            error "Non existent setup file: $setup"
-            return 1
-        fi
-        __run_function "st_profile" "$setup" || return $?
-    done
-
-    return $?
-}
-TO_BE_UNSET_f+=( "adm_load_profile" )
 
 adm_main() {
     local args=( "$@" )
@@ -157,8 +147,9 @@ adm_main() {
             ;;
 
         remove) pm_init; adm_remove_setups ;;
-        profile) adm_load_profile "${args[1]}" ;;
-        profiles) adm_load_profile "${setups[@]}" ;;
+        profile) __run_function "st_profile" "${args[1]}";;
+        profiles) __run_function "st_profile" "${setups[@]}";;
+        rc) __run_function "st_rc" "${args[1]}";;
 
         *) error "Invalid commands: $command" ; return 1 ;;
     esac
@@ -176,29 +167,38 @@ TO_BE_UNSET_f+=( "adm_main" )
 
 # runs a `func` from the given `setup` file
 __run_function() {
+    local args=( "$@" )
     local func="$1"
-    local setup="$2"
+    local setups=( "${args[@]:1}" )
     ret=()
+
+    local setup
+    for setup in "${setups[@]}"; do
+        if [ ! -f "$setup" ]; then
+            error "Cant run $func on non existent setup file: $setup"
+            return 1
+        fi
+
+        __clean_setup_env
+
+        # create an empty-ish stub function
+        eval 'function '"$func"'() { warn "Target: $func not found in $setup" ; return 0 ;}'
+
+        source "$setup"
+        "$func" || return $?
+    done
+
     __clean_setup_env
-
-    if [ ! -f "$setup" ]; then
-        error "Cant run $func on non existent setup file: $setup"
-        return 1
-    fi
-
-    source "$setup"
-
-    "$func"
-
-    return $?
+    return 0
 }
 TO_BE_UNSET_f+=( "__run_function" )
+
 
 __clean_setup_env() {
     local vars=( "packages" )
     btr_unset "${bars[@]}"
 
-    local functions=( "st_install" "st_profile" )
+    local functions=( "st_install" "st_profile" "st_rc")
     btr_unset_f "${functions[@]}"
 }
 TO_BE_UNSET_f+=( "__clean_setup_env" )
