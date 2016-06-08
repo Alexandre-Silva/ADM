@@ -165,16 +165,88 @@ test_btr_unset() {
    btr_unset "b" "c"
    assert_eq "" "$b" '`b` was not unset'
    assert_eq "" "$c" '`c` was not unset'
-
 }
 
-all_targets+=( btr_unset_f )
+all_targets+=( "btr_unset_f" )
 test_btr_unset_f() {
     f() { return 0; }
     btr_unset_f "-f" "f"
     f >/dev/null 2>&1 # call f
     assert_eq "127" "$?" '`f` was not unset'
 
+}
+
+__setup_link_test() {
+    export TEST_DIR="/tmp/ADM-TEST-DIR"
+    [[ -e "$TEST_DIR" ]] && rm -rf "$TEST_DIR"
+    mkdir "$TEST_DIR"
+
+    ln -s "/this/path/does/not/exist" "$TEST_DIR/broken-link"
+
+    echo -e "A_FILE=1\n" > "$TEST_DIR/a_file"
+    btr_unset "A_FILE"
+
+    ln -s "$TEST_DIR/"{a_file,a_link}
+}
+
+all_targets+=( "link_file_normal" )
+test_link_file_normal() {
+    __setup_link_test
+
+    adm_link "$TEST_DIR/"{a_file,some-link} >/dev/null 2>&1
+
+    [[ -L "$TEST_DIR/"some-link ]]
+    assert_eq "$?" 0 "some-link not created"
+
+}
+
+all_targets+=( "link_target_not_exist" )
+test_link_target_not_exist() {
+   __setup_link_test
+
+   adm_link "/this/file/does/not/exist" "$TEST_DIR/some-link" >/dev/null 2>&1
+
+   assert_eq "$?" 1 "adm_link did not return 1"
+
+   [[ ! -e "$TEST_DIR/some-link" ]]
+   assert_eq "$?" 0 "some-link created"
+}
+
+all_targets+=( "link_name_already_exist_link" )
+test_link_name_already_exist_link() {
+    __setup_link_test
+
+    adm_link "$HOME" "$TEST_DIR/a_link" >/dev/null 2>&1
+
+    assert_eq "$?" 1 "adm_link did not return 1"
+
+    [[ $(readlink "$TEST_DIR/a_link") == "$TEST_DIR/a_file" ]]
+    assert_eq "$?" 0 "overwrote existing valid link"
+}
+
+all_targets+=( "link_name_already_exists_file" )
+test_link_name_already_exists_file() {
+    __setup_link_test
+
+    adm_link "$HOME" "$TEST_DIR/a_file" >/dev/null 2>&1
+
+    assert_eq "$?" 1 "adm_link did not return 1"
+
+    [[ $(readlink "$TEST_DIR/a_link") == "$TEST_DIR/a_file" ]]
+    assert_eq "$?" 0 "overwrote existing file"
+}
+
+all_targets+=( "link_overwrite_expected" )
+test_link_overwrite_expected() {
+    __setup_link_test
+
+    adm_link "$TEST_DIR/"{a_file,another_link} >/dev/null 2>&1
+    adm_link "$TEST_DIR/"{a_file,another_link} >/dev/null 2>&1
+
+    assert_eq "$?" 0 "adm_link did not return 0"
+
+    [[ $(readlink "$TEST_DIR/a_link") == "$TEST_DIR/a_file" ]]
+    assert_eq "$?" 0 "overwrote existing pretended link to an invalid one"
 }
 
 adm_test() {

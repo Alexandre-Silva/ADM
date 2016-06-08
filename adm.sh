@@ -128,6 +128,37 @@ adm_remove_setups() {
 TO_BE_UNSET_f+=( "adm_remove_setups" )
 
 
+adm_link() {
+    local target="$1"
+    local name="$2"
+
+    if [[ ! -e "$target" ]]; then
+        echo -e "$COL_RED $target: Target does not exist  $COL_RESET"
+        return 1
+    fi
+
+    if [[ -e "$name" ]]; then
+        if [[ -L "$name" ]]; then
+            if [[ $(readlink "$name") == "$target" ]]; then
+                echo -ne "$COL_CYAN"
+                ln --force --verbose --symbolic "$target" "$name"
+                echo -ne "$COL_RESET"
+            else
+                echo -e "$COL_RED $name: File already exists $COL_RESET"
+                return 1
+            fi
+        else
+            echo -e "$COL_RED $name: File already exists $COL_RESET"
+            return 1
+        fi
+    else # either `name` does not exist at all or is broken link
+        echo -ne "$COL_GREEN"
+        ln --verbose --symbolic "$target" "$name"
+        echo -ne "$COL_RESET"
+    fi
+    return 0
+}
+
 adm_main() {
     local args=( "$@" )
     local command="${args[0]}"

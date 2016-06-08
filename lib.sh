@@ -42,28 +42,6 @@ TO_BE_UNSET_f+=(
     "ok" "bot" "running" "action" "warn" "error"
 )
 
-function symlinkifne {
-    running "$1"
-
-    if [[ -e $1 ]]; then
-        # file exists
-        if [[ -L $1 ]]; then
-            # it's already a simlink (could have come from this project)
-            echo -en '\tsimlink exists, skipped\t';ok
-            return
-        fi
-        # backup file does not exist yet
-        if [[ ! -e ~/.dotfiles_backup/$1 ]];then
-            mv $1 ~/.dotfiles_backup/
-            echo -en 'backed up saved...';
-        fi
-    fi
-    # create the link
-    ln -s ~/.dotfiles/$1 $1
-    echo -en '\tlinked';ok
-}
-
-
 # Better unset, unsets all variables passed as names in `args`.
 # It's smart about and unsets iff they are defined.
 function btr_unset() {
