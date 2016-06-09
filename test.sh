@@ -3,7 +3,10 @@
 ####
 # Imports
 ####
-source "./adm.sh" >/dev/null 2>&1 # main required commands but we are just testing
+
+# sdm.sh requires commands and will complain about it
+# However we are just testing
+source "./adm.sh" >/dev/null 2>&1
 source "./lib.sh"
 
 ####
