@@ -39,13 +39,11 @@ test_find_setups() {
     assert_eq "2" ${#ret[@]}
     assert_eq "./test/test1.setup.sh" "${ret[0]}"
     assert_eq "./test/test2.setup.sh" "${ret[1]}"
-
-
 }
 
-all_targets+=( "extract_packages" )
-test_extract_packages() {
-    adm_extract_packages "./test/test1.setup.sh"
+all_targets+=( "extract_var" )
+test_extract_var() {
+    adm_extract_var "./test/test1.setup.sh" "packages"
 
     assert_eq "1" "${#ret[@]}"
     assert_eq "pm:fortune-mod" "${ret[0]}"
@@ -212,8 +210,8 @@ test_link_target_not_exist() {
    assert_eq "$?" 0 "some-link created"
 }
 
-all_targets+=( "link_name_already_exist_link" )
-test_link_name_already_exist_link() {
+all_targets+=( "link_name_already_exists_link" )
+test_link_name_already_exists_link() {
     __setup_link_test
 
     adm_link "$HOME" "$TEST_DIR/a_link" >/dev/null 2>&1

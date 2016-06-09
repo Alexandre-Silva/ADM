@@ -40,25 +40,24 @@ adm_find_setups() {
 }
 TO_BE_UNSET_f+=( "adm_find_setups" )
 
-
-adm_extract_packages() {
-    local file="$1"
+# Extracts a variable with a certain `name` of the `setup` file
+adm_extract_var() {
+    local setup="$1"
+    local name="$2"
     ret=()
 
     __clean_setup_env
-    source "$file"
+    source "$setup"
 
-    # is `packages` defined ?
-    if [ -z ${packages+x} ]; then
-        warn 'Var `packages` unset in '"$file"
+    # is `name` defined ?
+    if $(eval '[[ -z ${'"$name"'+x} ]]'); then
+        warn $(printf 'Var %s unset in %s' "$name" "$setup")
+        set +x
         return 1
     fi
 
-    for p in "${packages[@]}"; do
-        ret+=( "$p" )
-    done
+    ret+=( "${packages[@]}" )
 
-    __clean_setup_env
     return 0
 }
 TO_BE_UNSET_f+=( "adm_extract_packages" )
@@ -158,6 +157,21 @@ adm_link() {
     fi
     return 0
 }
+TO_BE_UNSET_f+=( "adm_link" )
+
+# Creates the soft links specified in `links` of the setup.sh file
+adm_link_setup() {
+    local setups=( "$@" )
+    ret=()
+
+    for setup in "${setups[@]}"; do
+        adm_extract_packages "$setup" || return 0
+        pm_remove "${ret[@]}"
+    done
+
+    return 0
+}
+TO_BE_UNSET_f+=( "adm_link_setup" )
 
 adm_main() {
     local args=( "$@" )
@@ -219,7 +233,6 @@ __run_function() {
         "$func" || return $?
     done
 
-    __clean_setup_env
     return 0
 }
 TO_BE_UNSET_f+=( "__run_function" )
