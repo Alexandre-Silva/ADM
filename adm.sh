@@ -40,27 +40,6 @@ adm_find_setups() {
 }
 TO_BE_UNSET_f+=( "adm_find_setups" )
 
-# Extracts a variable with a certain `name` of the `setup` file
-adm_extract_var() {
-    local setup="$1"
-    local name="$2"
-    ret=()
-
-    __clean_setup_env
-    source "$setup"
-
-    # is `name` defined ?
-    if $(eval '[[ -z ${'"$name"'+x} ]]'); then
-        warn $(printf 'Var %s unset in %s' "$name" "$setup")
-        set +x
-        return 1
-    fi
-
-    ret+=( "${packages[@]}" )
-
-    return 0
-}
-TO_BE_UNSET_f+=( "adm_extract_packages" )
 
 # installs the provided `setup` file
 adm_install_setup() {
@@ -80,7 +59,7 @@ adm_install_setup() {
     local curr_dir=$(pwd)
     mkdir "$ADM_INSTALL_DIR" && cd "$ADM_INSTALL_DIR"
 
-    adm_extract_packages "$setup" || return 1
+    __extract_var "$setup" "packages" || return 1
     pm_install "${ret[@]}"
 
     __run_function "st_install" "$setup"
@@ -118,7 +97,7 @@ adm_remove_setups() {
 
     adm_find_setups "$DOTFILES" && local setups=( ${ret[@]} )
     for setup in "${setups[@]}"; do
-        adm_extract_packages "$setup" || return 0
+        __extract_var "$setup" "packages" || return 0
         pm_remove "${ret[@]}"
     done
 
@@ -165,7 +144,7 @@ adm_link_setup() {
     ret=()
 
     for setup in "${setups[@]}"; do
-        adm_extract_packages "$setup" || return 0
+        __extract_var "$setup" "packages" || return 0
         pm_remove "${ret[@]}"
     done
 
@@ -236,6 +215,28 @@ __run_function() {
     return 0
 }
 TO_BE_UNSET_f+=( "__run_function" )
+
+# Extracts a variable with a certain `name` of the `setup` file
+__extract_var() {
+    local setup="$1"
+    local name="$2"
+    ret=()
+
+    __clean_setup_env
+    source "$setup"
+
+    # is `name` defined ?
+    if $(eval '[[ -z ${'"$name"'+x} ]]'); then
+        warn $(printf 'Var %s unset in %s' "$name" "$setup")
+        set +x
+        return 1
+    fi
+
+    ret+=( "${packages[@]}" )
+
+    return 0
+}
+TO_BE_UNSET_f+=( "__extract_var" )
 
 
 __clean_setup_env() {

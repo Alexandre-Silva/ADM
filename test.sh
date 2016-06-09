@@ -43,7 +43,7 @@ test_find_setups() {
 
 all_targets+=( "extract_var" )
 test_extract_var() {
-    adm_extract_var "./test/test1.setup.sh" "packages"
+    __extract_var "./test/test1.setup.sh" "packages"
 
     assert_eq "1" "${#ret[@]}"
     assert_eq "pm:fortune-mod" "${ret[0]}"
