@@ -4,6 +4,10 @@ packages=(
   'pm:fortune-mod'
 )
 
+links=(
+    "/tmp/a_file" "/tmp/a_link"
+)
+
 st_install() {
     fortune
 

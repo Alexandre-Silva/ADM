@@ -144,8 +144,20 @@ adm_link_setup() {
     ret=()
 
     for setup in "${setups[@]}"; do
-        __extract_var "$setup" "packages" || return 0
-        pm_remove "${ret[@]}"
+        __extract_var "$setup" "links" || return 0
+        local links=( "${ret[@]}" )
+        echo "links: ${links[*]}"
+
+        local i=0
+        local j=1
+        while [[ $i < "${#links}" ]]; do
+            echo "links[$i]: ${links[$i]}"
+            echo "links[$j]: ${links[$j]}"
+            adm_link "${links[$i]}" "${links[$j]}"
+
+            (( i += 2 ))
+            (( j = i + 1 ))
+        done
     done
 
     return 0
@@ -171,9 +183,11 @@ adm_main() {
             ;;
 
         remove) pm_init; adm_remove_setups ;;
-        profile) __run_function "st_profile" "${args[1]}";;
-        profiles) __run_function "st_profile" "${setups[@]}";;
-        rc) __run_function "st_rc" "${args[1]}";;
+        profile) __run_function "st_profile" "${args[1]}" ;;
+        profiles) __run_function "st_profile" "${setups[@]}" ;;
+        rc) __run_function "st_rc" "${args[1]}" ;;
+
+        link) adm_link_setup "${args[1]}" ;;
 
         *) error "Invalid commands: $command" ; return 1 ;;
     esac
@@ -232,7 +246,7 @@ __extract_var() {
         return 1
     fi
 
-    ret+=( "${packages[@]}" )
+    ret+=( $(eval 'echo ${'"$name"'[@]}') )
 
     return 0
 }
