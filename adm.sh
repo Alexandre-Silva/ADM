@@ -127,7 +127,7 @@ adm_link() {
         if [[ -L "$name" ]]; then
             if [[ $(readlink "$name") == "$target" ]]; then
                 echo -ne "$COL_CYAN"
-                ln --force --verbose --symbolic "$target" "$name"
+                ln --no-target-directory --force --verbose --symbolic "$target" "$name"
                 echo -ne "$COL_RESET"
             else
                 echo -e "$COL_RED $name: File already exists $COL_RESET"
@@ -139,7 +139,7 @@ adm_link() {
         fi
     else # either `name` does not exist at all or is broken link
         echo -ne "$COL_GREEN"
-        ln --force --verbose --symbolic "$target" "$name"
+        ln --no-target-directory --force --verbose --symbolic "$target" "$name"
         echo -ne "$COL_RESET"
     fi
     return 0
