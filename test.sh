@@ -250,6 +250,21 @@ test_link_overwrite_expected() {
     assert_eq "$?" 0 "overwrote existing pretended link to an invalid one"
 }
 
+
+all_targets+=( "link_overwrite_expected" )
+test_link_overwrite_expected() {
+    __setup_link_test
+
+    adm_link "$TEST_DIR/"{a_file,another_link} >/dev/null 2>&1
+    adm_link "$TEST_DIR/"{a_file,another_link} >/dev/null 2>&1
+
+    assert_eq "$?" 0 "adm_link did not return 0"
+
+    [[ $(readlink "$TEST_DIR/a_link") == "$TEST_DIR/a_file" ]]
+    assert_eq "$?" 0 "overwrote existing pretended link to an invalid one"
+}
+
+
 adm_test() {
     _target="test_"$1
 

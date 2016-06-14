@@ -138,7 +138,7 @@ adm_link() {
 }
 TO_BE_UNSET_f+=( "adm_link" )
 
-# Creates the soft links specified in `links` of the setup.sh file
+# Creates the soft links specified in the `links` var of the `setups` files
 adm_link_setup() {
     local setups=( "$@" )
     ret=()
@@ -151,8 +151,6 @@ adm_link_setup() {
         local i=0
         local j=1
         while [[ $i < "${#links}" ]]; do
-            echo "links[$i]: ${links[$i]}"
-            echo "links[$j]: ${links[$j]}"
             adm_link "${links[$i]}" "${links[$j]}"
 
             (( i += 2 ))
@@ -168,7 +166,7 @@ adm_main() {
     local args=( "$@" )
     local command="${args[0]}"
 
-    adm_find_setups "$DOTFILES" && local setups=( ${ret[*]} )
+    adm_find_setups "$DOTFILES" && local setups=( "${ret[*]}" )
 
     case $command in
         install)
@@ -186,9 +184,9 @@ adm_main() {
         profile) __run_function "st_profile" "${args[1]}" ;;
         profiles) __run_function "st_profile" "${setups[@]}" ;;
         rc) __run_function "st_rc" "${args[1]}" ;;
-
+        rcs) __run_function "st_rc" "${setups[@]}" ;;
         link) adm_link_setup "${args[1]}" ;;
-
+        links) adm_link_setup "${setups[@]}" ;;
         *) error "Invalid commands: $command" ; return 1 ;;
     esac
 
