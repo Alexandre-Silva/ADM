@@ -139,7 +139,7 @@ adm_link() {
         fi
     else # either `name` does not exist at all or is broken link
         echo -ne "$COL_GREEN"
-        ln --verbose --symbolic "$target" "$name"
+        ln --force --verbose --symbolic "$target" "$name"
         echo -ne "$COL_RESET"
     fi
     return 0
@@ -152,12 +152,12 @@ adm_link_setup() {
     ret=()
 
     for setup in "${setups[@]}"; do
-        __extract_var "$setup" "links" || return 0
+        __extract_var "$setup" "links" || return 1
         local links=( "${ret[@]}" )
 
         local i=0
         local j=1
-        while [[ $i < "${#links}" ]]; do
+        while [[ $i < "${#links[@]}" ]]; do
             adm_link "${links[$i]}" "${links[$j]}"
 
             (( i += 2 ))
@@ -272,13 +272,6 @@ TO_BE_UNSET_f+=( "__clean_setup_env" )
 # Main
 ####
 
-# only exec if not beeing source by other script
-# usually test.sh
-echo "${BASH_SOURCE[@]}"
-#if [[ "${BASH_SOURCE[0]}" == "${0}" ]] ; then
-
 [ -n "$ZSH_VERSION" ] && emulate bash
 adm_main "$@"
 [ -n "$ZSH_VERSION" ] && emulate zsh
-
-#fi
