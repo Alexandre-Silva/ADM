@@ -56,6 +56,7 @@ pm_remove() {
 TO_BE_UNSET_f+=( "pm_remove" )
 
 pm_init() {
+    echo "ADM"
     for pm in $(find "$ADM/package_manager.d" -type f -name "*.sh"); do
         source "$pm"
     done

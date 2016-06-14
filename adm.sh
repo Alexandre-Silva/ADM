@@ -40,7 +40,7 @@ adm_find_setups() {
     local setup
     ret=()
 
-    for setup in $(find "$root_dir" -type f -name "*.setup.sh" | sort); do
+    for setup in $(find "$(realpath "$root_dir")" -type f -name "*.setup.sh" | sort); do
         ret+=( "$setup" )
     done
 
@@ -180,7 +180,7 @@ adm_main() {
             pm_init
 
             if [ -n "${args[1]}" ]; then
-                adm_install_setup "${args[1]}"
+                adm_install_setup "$(realpath "${args[1]}")"
             else
                 echo "No setup provided. Installing ALL of them."
                 adm_install_setups
@@ -188,11 +188,11 @@ adm_main() {
             ;;
 
         remove) pm_init; adm_remove_setups ;;
-        profile) __run_function "st_profile" "${args[1]}" ;;
+        profile) __run_function "st_profile" "$(realpath "${args[1]}")" ;;
         profiles) __run_function "st_profile" "${setups[@]}" ;;
-        rc) __run_function "st_rc" "${args[1]}" ;;
+        rc) __run_function "st_rc" "$(realpath "${args[1]}")" ;;
         rcs) __run_function "st_rc" "${setups[@]}" ;;
-        link) adm_link_setup "${args[1]}" ;;
+        link) adm_link_setup "$(realpath "${args[1]}")" ;;
         links) adm_link_setup "${setups[@]}" ;;
         *) error "Invalid commands: $command" ; return 1 ;;
     esac
