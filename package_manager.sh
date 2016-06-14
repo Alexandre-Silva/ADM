@@ -3,7 +3,7 @@
 ####
 # Imports
 ####
-source "./lib.sh"
+source "$ADM/lib.sh"
 
 ##### CONFIGS and VARS
 declare -A package_manager=()

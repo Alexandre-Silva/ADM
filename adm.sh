@@ -3,8 +3,16 @@
 ####
 # Imports
 ####
-source "./lib.sh"
-source "./package_manager.sh"
+if [[ -z ${ADM+x} ]]; then
+    echo "ERROR: ADM var must be defined with the path to the ADM directory"
+    return 1
+fi
+
+source "$ADM/lib.sh"
+source "$ADM/package_manager.sh"
+
+TO_BE_UNSET+=( "DIR" )
+TO_BE_UNSET_f+=( "__import" )
 
 ####
 # CONFIGS and VARS
@@ -146,7 +154,6 @@ adm_link_setup() {
     for setup in "${setups[@]}"; do
         __extract_var "$setup" "links" || return 0
         local links=( "${ret[@]}" )
-        echo "links: ${links[*]}"
 
         local i=0
         local j=1
