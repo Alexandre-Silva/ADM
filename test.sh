@@ -163,11 +163,11 @@ test_btr_unset() {
     btr_unset "a"
     assert_eq "" "$a" '`a` was not unset'
 
-   local b=1
-   local c=1
-   btr_unset "b" "c"
-   assert_eq "" "$b" '`b` was not unset'
-   assert_eq "" "$c" '`c` was not unset'
+    local b=1
+    local c=1
+    btr_unset "b" "c"
+    assert_eq "" "$b" '`b` was not unset'
+    assert_eq "" "$c" '`c` was not unset'
 }
 
 all_targets+=( "btr_unset_f" )
@@ -205,14 +205,14 @@ test_link_file_normal() {
 
 all_targets+=( "link_target_not_exist" )
 test_link_target_not_exist() {
-   __setup_link_test
+    __setup_link_test
 
-   adm_link "/this/file/does/not/exist" "$TEST_DIR/some-link" >/dev/null 2>&1
+    adm_link "/this/file/does/not/exist" "$TEST_DIR/some-link" >/dev/null 2>&1
 
-   assert_eq "$?" 1 "adm_link did not return 1"
+    assert_eq "$?" 1 "adm_link did not return 1"
 
-   [[ ! -e "$TEST_DIR/some-link" ]]
-   assert_eq "$?" 0 "some-link created"
+    [[ ! -e "$TEST_DIR/some-link" ]]
+    assert_eq "$?" 0 "some-link created"
 }
 
 all_targets+=( "link_name_already_exists_link" )
@@ -283,12 +283,18 @@ adm_test() {
 
     OK="true"
 
-    running "$_target"
+    local test_name="$(running "$_target")"
+    printf "%s" "$test_name"
+
     "$_target"
 
     adm_reset_setup
 
-    if [ "$OK" = "true" ]; then ok; else error; fi
+    if [ "$OK" = "true" ]; then
+        printf "\r%s %s %50s \n" "$test_name" "$(ok)"
+    else
+        error
+    fi
 }
 
 main() {
