@@ -226,12 +226,10 @@ __run_function() {
             return 1
         fi
 
-        __clean_setup_env
-
         # create an empty-ish stub function
         eval 'function '"$func"'() { warn "Target: $func not found in $setup" ; return 0 ;}'
+        __source_safe "$setup"
 
-        source "$setup"
         "$func" || return $?
     done
 
@@ -245,8 +243,7 @@ __extract_var() {
     local name="$2"
     ret=()
 
-    __clean_setup_env
-    source "$setup"
+    __source_safe "$setup"
 
     # is `name` defined ?
     if $(eval '[[ -z ${'"$name"'+x} ]]'); then
@@ -261,6 +258,17 @@ __extract_var() {
 }
 TO_BE_UNSET_f+=( "__extract_var" )
 
+
+# Sources a certain while maintaining certain protections
+__source_safe() {
+    local setup="$1"
+
+    __clean_setup_env
+
+    [[ -n "$ZSH_VERSION" ]] && emulate zsh
+    source "$setup"
+    [[ -n "$ZSH_VERSION" ]] && emulate bash
+}
 
 __clean_setup_env() {
     local vars=( "packages" )
