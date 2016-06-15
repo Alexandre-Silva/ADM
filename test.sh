@@ -3,6 +3,8 @@
 ####
 # Imports
 ####
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+export ADM="$DIR"
 
 # sdm.sh requires commands and will complain about it
 # However we are just testing
@@ -40,8 +42,8 @@ test_find_setups() {
     adm_find_setups .
 
     assert_eq "2" ${#ret[@]}
-    assert_eq "./test/test1.setup.sh" "${ret[0]}"
-    assert_eq "./test/test2.setup.sh" "${ret[1]}"
+    assert_eq "$(realpath ./test/test1.setup.sh)" "${ret[0]}"
+    assert_eq "$(realpath ./test/test2.setup.sh)" "${ret[1]}"
 }
 
 all_targets+=( "extract_var" )
@@ -264,6 +266,17 @@ test_link_overwrite_expected() {
     assert_eq "$?" 0 "overwrote existing pretended link to an invalid one"
 }
 
+all_targets+=( "link_create_name_dir" )
+test_link_create_name_dir() {
+    __setup_link_test
+
+    adm_link "$TEST_DIR/"{a_file,path/to/link} >/dev/null 2>&1
+
+    assert_eq "$?" 0 "adm_link did not return 0"
+
+    [[ $(readlink "$TEST_DIR/path/to/link") == "$TEST_DIR/a_file" ]]
+    assert_eq "$?" 0 "failed to create expect hierarchy of dirs and the link name"
+}
 
 adm_test() {
     _target="test_"$1

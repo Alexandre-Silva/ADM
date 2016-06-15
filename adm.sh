@@ -137,8 +137,12 @@ adm_link() {
             echo -e "$COL_RED $name: File already exists $COL_RESET"
             return 1
         fi
-    else # either `name` does not exist at all or is broken link
+    else # either `name` does not exist or is a broken link
+        local name_dir=""
+        name_dir="$(dirname "$name")"
+
         echo -ne "$COL_GREEN"
+        [[ ! -d  "$name_dir" ]] && mkdir --parents --verbose "$name_dir"
         ln --no-target-directory --force --verbose --symbolic "$target" "$name"
         echo -ne "$COL_RESET"
     fi
