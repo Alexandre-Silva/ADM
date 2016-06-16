@@ -42,6 +42,26 @@ TO_BE_UNSET_f+=(
     "ok" "bot" "running" "action" "warn" "error"
 )
 
+# Returns 0 if function of name `func` is defined
+# Works in bash and zsh
+function is_function() {
+    local func="$1"
+
+    if [ -n "$ZSH_VERSION" ]; then
+        if [ "$(type -w $func | cut -d ' ' -f 2)" = function ] ; then
+            return 0
+        fi
+
+    else # assume BASH or equivalent
+        if [ -n "$(type -t $func)" ] && [ "$(type -t $func)" = function ]; then
+            return 0
+        fi
+    fi
+
+    return 1
+}
+# not to be unset
+
 # Better unset, unsets all variables passed as names in `args`.
 # It's smart about and unsets iff they are defined.
 function btr_unset() {
@@ -58,22 +78,11 @@ function btr_unset() {
 function btr_unset_f() {
     local args=( "$@" )
 
-    if [ -n "$ZSH_VERSION" ]; then
-        local target
-        for target in "${args[@]}"; do
-            if [ "$(type -w $target | cut -d ' ' -f 2)" = function ] ; then
-                unset -f $target
-            fi
-        done
+    local target
+    for target in "${args[@]}"; do
+        is_function "$target" && unset -f "$target"
+    done
 
-    else # assume BASH or equivalent
-        local target
-        for target in "${args[@]}"; do
-            if [ -n "$(type -t $target)" ] && [ "$(type -t $target)" = function ]; then
-                unset -f $target
-            fi
-        done
-    fi
 }
 # not to be unset
 

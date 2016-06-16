@@ -177,7 +177,7 @@ adm_main() {
     local args=( "$@" )
     local command="${args[0]}"
 
-    adm_find_setups "$DOTFILES" && local setups=( "${ret[*]}" )
+    adm_find_setups "$DOTFILES" && local setups=( "${ret[@]}" )
 
     case $command in
         install)
@@ -226,11 +226,12 @@ __run_function() {
             return 1
         fi
 
-        # create an empty-ish stub function
-        eval 'function '"$func"'() { warn "Target: $func not found in $setup" ; return 0 ;}'
         __source_safe "$setup"
 
-        "$func" || return $?
+        # __source_sage unsets the common functions defined in setup.sh's
+        if is_function "$func"; then
+            "$func" || return $?
+        fi
     done
 
     return 0
