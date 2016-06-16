@@ -49,54 +49,59 @@ adm_find_setups() {
 TO_BE_UNSET_f+=( "adm_find_setups" )
 
 
-# installs the provided `setup` file
+# installs the provided `setups` files
 adm_install_setup() {
-    local setup=$1
+    local setups=( "$@" )
     ret=()
 
-    if [ ! -f "$setup" ]; then
-        error "Non existent setup file: $setup"
-        return 1
-    fi
-
-    if [ -f "$ADM_INSTALL_DIR" ] || [ -d "$ADM_INSTALL_DIR" ]; then
+    if [[ -e "$ADM_INSTALL_DIR" ]]; then
         error "$ADM_INSTALL_DIR already exists. Possibly previous installion did not exit safely."
         return 1;
     fi
 
+    for setup in "${setups[@]}"; do
+        if [ ! -f "$setup" ]; then
+            error "Non existent setup file: $setup"
+            return 1
+        fi
+    done
+
+
+    # Find and install all setups packages
+    local all_packages=()
+    for setup in "${setups[@]}"; do
+        __extract_var "$setup" "packages" || return 1
+        all_packages+=( "${ret[@]}" )
+    done
+
+    pm_install "${all_packages[@]}" || return 1
+
+    # Find and execute all setups st_install
     local curr_dir=$(pwd)
-    mkdir "$ADM_INSTALL_DIR" && cd "$ADM_INSTALL_DIR"
+    mkdir "$ADM_INSTALL_DIR"
+    cd "$ADM_INSTALL_DIR"
 
-    __extract_var "$setup" "packages" || return 1
-    pm_install "${ret[@]}"
+    for setup in "${setups[@]}"; do
+        __run_function "st_install" "$setup"
+        local ret_code=$?
 
-    __run_function "st_install" "$setup"
-    local ret_code=$?
+        if [[ $ret_code -eq 0 ]]; then
+            rm -rf "$ADM_INSTALL_DIR" && mkdir "$ADM_INSTALL_DIR" && cd "$ADM_INSTALL_DIR"
+        else
+            break
+        fi
+    done
 
+    # linkings
+    adm_link_setup "${setups[@]}"
+
+
+    # Clean up
     cd "$curr_dir"
     rm -rf "$ADM_INSTALL_DIR"
     return $ret_code
 }
 TO_BE_UNSET_f+=( "adm_install_setup" )
-
-
-# finds all *.setup.sh files and installs the all `packages`
-adm_install_setups() {
-    ret=()
-
-    adm_find_setups "$DOTFILES" && local setups=( ${ret[*]} )
-
-    local setup
-    for setup in "${setups[@]}"; do
-        adm_install_setup "$setup"
-
-        local ret_code=$?
-        [ $ret_code -ne 0 ] && return $ret_code
-    done
-
-    return 0
-}
-TO_BE_UNSET_f+=( "adm_install_setups" )
 
 
 # finds all *.setup.sh files and removes the all `packages`
@@ -187,7 +192,7 @@ adm_main() {
                 adm_install_setup "$(realpath "${args[1]}")"
             else
                 echo "No setup provided. Installing ALL of them."
-                adm_install_setups
+                adm_install_setup "${setups[@]}"
             fi
             ;;
 
@@ -248,9 +253,8 @@ __extract_var() {
 
     # is `name` defined ?
     if $(eval '[[ -z ${'"$name"'+x} ]]'); then
-        warn $(printf 'Var %s unset in %s' "$name" "$setup")
-        set +x
-        return 1
+        warn 'Var '"$name"' unset in '"$setup"
+        return 0
     fi
 
     ret+=( $(eval 'echo ${'"$name"'[@]}') )
