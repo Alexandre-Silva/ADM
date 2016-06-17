@@ -166,7 +166,7 @@ adm_link_setup() {
 
         local i=0
         local j=1
-        while [[ $i < "${#links[@]}" ]]; do
+        while (( $i < ${#links[@]} )); do
             adm_link "${links[$i]}" "${links[$j]}"
 
             (( i += 2 ))
