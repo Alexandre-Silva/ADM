@@ -231,6 +231,8 @@ __run_function() {
             return 1
         fi
 
+        is_function "$func" && unset "$func"
+
         __source_safe "$setup"
 
         # __source_sage unsets the common functions defined in setup.sh's
@@ -248,6 +250,8 @@ __extract_var() {
     local setup="$1"
     local name="$2"
     ret=()
+
+    [[ -n "${name+x}" ]] && unset "$name"
 
     __source_safe "$setup"
 
