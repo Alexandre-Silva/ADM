@@ -21,7 +21,7 @@ pm_burgaur() {
     done
 
     case $command in
-        install) sudo pacman -S "${BURGAUR_FLAGS[@]}" "${packages[@]}" ;;
+        install) burgaur "${BURGAUR_FLAGS[@]}" --make-install "${packages[@]}" ;;
         remove)  sudo pacman -Rns "${BURGAUR_FLAGS[@]}" "${packages[@]}" ;;
         *)       err "Invalid command: $command"; return 1 ;;
     esac
