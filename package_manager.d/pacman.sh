@@ -1,6 +1,5 @@
 #!/usr/bin/bash
 
-
 PACMAN_FLAGS=(
     "--noconfirm"
     "--needed" # does not reistall up-to-date packages
