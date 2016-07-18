@@ -54,11 +54,6 @@ adm_install_setup() {
     local setups=( "$@" )
     ret=()
 
-    if [[ -e "$ADM_INSTALL_DIR" ]]; then
-        error "$ADM_INSTALL_DIR already exists. Possibly previous installion did not exit safely."
-        return 1;
-    fi
-
     for setup in "${setups[@]}"; do
         if [ ! -f "$setup" ]; then
             error "Non existent setup file: $setup"
@@ -76,29 +71,31 @@ adm_install_setup() {
 
     pm_install "${all_packages[@]}" || return 1
 
-    # Find and execute all setups st_install
+    # prepare temporary dirs
     local curr_dir=$(pwd)
-    mkdir "$ADM_INSTALL_DIR"
-    cd "$ADM_INSTALL_DIR"
+    mkdir --parents --verbose "$ADM_INSTALL_DIR"
+    local template="$(date +"%S:%M:%H_%d-%m-%y")"
 
+    # execute all setups st_install
     for setup in "${setups[@]}"; do
+        # create temporary dir for the setup file
+        local setup_name="$(basename $setup)"
+        setup_name="${setup_name%.setup.sh}"
+        local tmp_dir="$(mktemp --tmpdir=$ADM_INSTALL_DIR --directory $setup_name-$template-XXXXX)"
+        cd "$tmp_dir"
+
         __run_function "st_install" "$setup"
         local ret_code=$?
 
-        if [[ $ret_code -eq 0 ]]; then
-            rm -rf "$ADM_INSTALL_DIR" && mkdir "$ADM_INSTALL_DIR" && cd "$ADM_INSTALL_DIR"
-        else
-            break
-        fi
+        [[ $ret_code -eq 0 ]] || break
     done
+    set +x
 
     # linkings
     adm_link_setup "${setups[@]}"
 
-
     # Clean up
     cd "$curr_dir"
-    rm -rf "$ADM_INSTALL_DIR"
     return $ret_code
 }
 TO_BE_UNSET_f+=( "adm_install_setup" )
