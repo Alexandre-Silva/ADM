@@ -1,6 +1,12 @@
 #!/bin/bash
 
 ####
+# Shell options
+####
+set -eu
+set -o pipefail
+
+####
 # Imports
 ####
 if [[ -z ${ADM+x} ]]; then
@@ -258,6 +264,7 @@ __extract_var() {
         return 0
     fi
 
+    # copies `name` into `ret`
     ret+=( $(eval 'echo ${'"$name"'[@]}') )
 
     return 0
