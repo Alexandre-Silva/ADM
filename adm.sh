@@ -206,6 +206,7 @@ adm_main() {
         rcs) __run_function "st_rc" "${setups[@]}" ;;
         link) adm_link_setup "$(realpath "${args[1]}")" ;;
         links) adm_link_setup "${setups[@]}" ;;
+        noop) return 0 ;; # testing purposes
         *) error "Invalid commands: $command" ; return 1 ;;
     esac
 
@@ -278,9 +279,9 @@ __source_safe() {
 
     __clean_setup_env
 
-    [[ -n "$ZSH_VERSION" ]] && emulate zsh
+    [[ -n "${ZSH_VERSION:-}" ]] && emulate zsh
     source "$setup"
-    [[ -n "$ZSH_VERSION" ]] && emulate bash
+    [[ -n "${ZSH_VERSION:-}" ]] && emulate bash
 }
 
 __clean_setup_env() {
@@ -297,6 +298,6 @@ TO_BE_UNSET_f+=( "__clean_setup_env" )
 # Main
 ####
 
-[ -n "$ZSH_VERSION" ] && emulate bash
+[ -n "${ZSH_VERSION:-}" ] && emulate bash
 adm_main "$@"
-[ -n "$ZSH_VERSION" ] && emulate zsh
+[ -n "${ZSH_VERSION:-}" ] && emulate zsh

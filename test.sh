@@ -1,14 +1,20 @@
-#!/usr/bin/bash
+#!/bin/bash
+
+####
+# Shell options
+####
+set -eu
+set -o pipefail
 
 ####
 # Imports
 ####
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]:-}" )" && pwd )"
 export ADM="$DIR"
 
 # sdm.sh requires commands and will complain about it
 # However we are just testing
-source "./adm.sh" >/dev/null 2>&1
+source "./adm.sh" noop
 source "./lib.sh"
 
 ####
@@ -299,7 +305,7 @@ adm_test() {
 
 main() {
     local argv=("$@")
-    local target=$1
+    local target="${1:-}"
 
     local targets=()
     if [[ "$target" = "all" || "$target" = "" ]] ; then
