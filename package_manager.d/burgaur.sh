@@ -1,9 +1,13 @@
 #!/usr/bin/bash
 
+COWER_FLAGS=(
+    --brief
+)
+
 BURGAUR_FLAGS=(
     "--noconfirm"
 )
-TO_BE_UNSET+=( "BURGAUR_FLAGS")
+TO_BE_UNSET+=( {COWER,BURGAUR}"_FLAGS" )
 
 pm_burgaur() {
     local args=("$@")
@@ -21,8 +25,13 @@ pm_burgaur() {
     done
 
     case $command in
-        install) burgaur "${BURGAUR_FLAGS[@]}" --make-install "${packages[@]}" ;;
+        install) burgaur "${BURGAUR_FLAGS[@]}" \
+                         --make-install "${packages[@]}" \
+                         --cower-raw-options "${COWER_FLAGS[@]}"
+                 ;;
+
         remove)  sudo pacman -Rns "${BURGAUR_FLAGS[@]}" "${packages[@]}" ;;
+
         *)       err "Invalid command: $command"; return 1 ;;
     esac
 
