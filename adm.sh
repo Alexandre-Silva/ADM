@@ -1,19 +1,8 @@
 #!/bin/bash
 
 ####
-# Shell options
-####
-set -eu
-set -o pipefail
-
-####
 # Imports
 ####
-if [[ -z ${ADM+x} ]]; then
-    echo "ERROR: ADM var must be defined with the path to the ADM directory"
-    return 1
-fi
-
 source "$ADM/lib.sh"
 source "$ADM/package_manager.sh"
 
@@ -170,7 +159,9 @@ adm_link_setup() {
         local i=0
         local j=1
         while (( $i < ${#links[@]} )); do
+            cd "$(dirname $setup)"
             adm_link "${links[$i]}" "${links[$j]}"
+            cd -
 
             (( i += 2 ))
             (( j = i + 1 ))

@@ -1,21 +1,18 @@
 #!/bin/bash
 
 ####
-# Shell options
-####
-set -eu
-set -o pipefail
-
-####
 # Imports
 ####
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]:-}" )" && pwd )"
-export ADM="$DIR"
+if [[ -n "$BASH_SOURCE" ]]; then
+    export ADM="$(realpath $(dirname $BASH_SOURCE))"
+else
+    export ADM="$(realpath $(dirname $0))"
+fi
 
 # sdm.sh requires commands and will complain about it
 # However we are just testing
-source "./adm.sh" noop
-source "./lib.sh"
+source "$ADM/adm.sh" noop
+source "$ADM/lib.sh"
 
 ####
 # CONFIGS and VARS
@@ -195,7 +192,7 @@ __setup_link_test() {
     echo -e "A_FILE=1\n" > "$TEST_DIR/a_file"
     btr_unset "A_FILE"
 
-    ln -s "$TEST_DIR/"{a_file,a_link}
+    ln -s "$TEST_DIR/a_file" "$TEST_DIR/a_link"
 }
 
 all_targets+=( "link_file_normal" )
