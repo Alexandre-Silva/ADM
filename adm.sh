@@ -77,7 +77,7 @@ adm_install_setup() {
         local setup_name="$(basename $setup)"
         setup_name="${setup_name%.setup.sh}"
         local tmp_dir="$(mktemp --tmpdir=$ADM_INSTALL_DIR --directory $setup_name-$template-XXXXX)"
-        cd "$tmp_dir"
+        builtin cd "$tmp_dir"
 
         __run_function "st_install" "$setup"
         local ret_code=$?
@@ -90,7 +90,7 @@ adm_install_setup() {
     adm_link_setup "${setups[@]}"
 
     # Clean up
-    cd "$curr_dir"
+    builtin cd "$curr_dir"
     return $ret_code
 }
 TO_BE_UNSET_f+=( "adm_install_setup" )
@@ -159,9 +159,9 @@ adm_link_setup() {
         local i=0
         local j=1
         while (( $i < ${#links[@]} )); do
-            cd "$(dirname $setup)"
+            builtin cd "$(dirname $setup)"
             adm_link "${links[$i]}" "${links[$j]}"
-            cd -
+            builtin cd -
 
             (( i += 2 ))
             (( j = i + 1 ))
