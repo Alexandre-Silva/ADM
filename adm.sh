@@ -156,16 +156,18 @@ adm_link_setup() {
         __extract_var "$setup" "links" || return 1
         local links=( "${ret[@]}" )
 
+        builtin cd "$(dirname $setup)"
+
         local i=0
         local j=1
         while (( $i < ${#links[@]} )); do
-            builtin cd "$(dirname $setup)"
             adm_link "${links[$i]}" "${links[$j]}"
-            builtin cd -
 
             (( i += 2 ))
             (( j = i + 1 ))
         done
+
+        builtin cd "$OLDPWD"
     done
 
     return 0
