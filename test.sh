@@ -14,4 +14,4 @@ fi
 source "$ADM/adm.sh" noop
 source "$ADM/lib.sh"
 
-shpec test.shpec.sh
+shpec/bin/shpec test.shpec.sh
