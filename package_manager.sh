@@ -8,7 +8,7 @@ source "$ADM/lib.sh"
 ##### CONFIGS and VARS
 declare -A package_manager=()
 
-TO_BE_UNSET+=( packages_manager )
+TO_BE_UNSET+=( package_manager )
 
 
 ##### Funcs
@@ -28,7 +28,6 @@ pm_register() {
     fi
 
     package_manager[$sufix]="$2"
-    ok
 
     return 0
 }
@@ -88,9 +87,9 @@ __pm_call_func() {
         # containning all _packages separated by spaces
         if [[ -z "${_packages[$suffix]}" ]]; then
             _packages[$suffix]="${pckg#*:}"
-            packages_suffixes+=( "$suffix" )
+            packages_suffixes+=( "${suffix}" )
         else
-            # adds `pckg` name to `_packages` to instal
+            # adds `pckg` name to `_packages` to install
             _packages[$suffix]+=" ${pckg#*:}"
         fi
     done
@@ -103,7 +102,7 @@ __pm_call_func() {
         if [ -n "${package_manager[$suffix]}" ]; then
 
             # convert long string to actual array of _packages
-            # no the lack of "..." around _packages[$suffix]
+            # note the lack of "..." around _packages[$suffix]
             local packages_array=( ${_packages[$suffix]} )
             "${package_manager[$suffix]}" "$action" "${packages_array[@]}"
 
