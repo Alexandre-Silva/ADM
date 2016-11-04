@@ -94,3 +94,22 @@ function btr_unset_marked() {
     btr_unset "TO_BE_UNSET" "TO_BE_UNSET_f"
 }
 TO_BE_UNSET_f+=( "btr_unset_marked" )
+
+# Returns the lines which are in A but not in B. The (-) of set theory.
+#
+# @Usage : $(adm_not_in ...)
+# @Param $1:A string were each line is a element
+# @Param $2:B string were each line is a element
+# @Returns : Trough stdout the different elements
+function adm_not_in() {
+    local a="$1"
+    local b="$2"
+
+    a=$(echo -ne $a | sort)
+    b=$(echo -ne $b | sort)
+
+    # http://stackoverflow.com/questions/18204904/fast-way-of-finding-lines-in-one-file-that-are-not-in-another
+    diff --new-line-format="" --unchanged-line-format="" <(echo "$a") <(echo "$b") \
+        | sed '/^$/d' # deletes empty lines
+    return 0
+}

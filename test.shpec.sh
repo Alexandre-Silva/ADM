@@ -68,31 +68,50 @@ describe "test adm.sh internals"
         assert equal "$?" "0"
         assert equal "$out" "run"
     end
+end
 
+describe "testing lib.sh functions"
+    describe "btr_unset"
+        it "unsets 1 var"
+            __setup
+            local a=1
+            btr_unset "a"
+            assert equal "" "$a" '`a` was not unset'
+        end
 
-    it "btr_unset"
-        __setup
-        local a=1
-        btr_unset "a"
-        assert equal "" "$a" '`a` was not unset'
+        it "btr_unset (multi args)"
+            local b=1
+            local c=1
+            btr_unset "b" "c"
+            assert equal "" "$b" '`b` was not unset'
+            assert equal "" "$c" '`c` was not unset'
+        end
+
+        it "btr_unset_f"
+            __setup
+            f() { return 0; }
+            btr_unset_f "-f" "f"
+            f >/dev/null 2>&1 # call f
+            assert equal "127" "$?" '`f` was not unset'
+        end
     end
 
-    it "btr_unset (multi args)"
-        local b=1
-        local c=1
-        btr_unset "b" "c"
-        assert equal "" "$b" '`b` was not unset'
-        assert equal "" "$c" '`c` was not unset'
-    end
+    describe "adm_not_in"
+        it "simple sets"
+            assert equal "" "$(adm_not_in '' '')"
+            assert equal "a" "$(adm_not_in 'a' '')"
+            assert equal "" "$(adm_not_in '' 'a')"
+            assert equal "" "$(adm_not_in 'a' 'a')"
+            assert equal "a" "$(adm_not_in 'a' 'b')"
+        end
 
-    it "btr_unset_f"
-        __setup
-        f() { return 0; }
-        btr_unset_f "-f" "f"
-        f >/dev/null 2>&1 # call f
-        assert equal "127" "$?" '`f` was not unset'
+        it "multiple element sets"
+            assert equal "" "$(adm_not_in '' a\\nb)"
+            assert equal "a\nb" "$(adm_not_in a\\nb '')"
+            assert equal "b" "$(adm_not_in a\\nb a\\nc)"
+            assert equal "a\nb\nc" "$(adm_not_in x\\na\\ny\\nb\\nz\\nc x\\ny\\nz)"
+        end
     end
-
 end
 
 describe "package managers wrappers"
