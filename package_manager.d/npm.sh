@@ -3,7 +3,7 @@
 NPM_FLAGS=( --global )
 TO_BE_UNSET+=( "NPM_FLAGS" )
 
-pm_npm() {
+adm_pm__npm() {
     local args=( "$@" )
     local command=${args[0]}
     local packages=( ${args[@]:1} )
@@ -14,6 +14,5 @@ pm_npm() {
         *)       err "Invalid command: $command"; return 1 ;;
     esac
 }
-TO_BE_UNSET_f+=( "pm_npm" )
 
-[[ -x "/usr/bin/npm" ]] && pm_register "npm" "pm_npm"
+[[ -x "/usr/bin/npm" ]] && adm_pm_register "npm" "adm_pm__npm"

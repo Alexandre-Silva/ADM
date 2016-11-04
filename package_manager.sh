@@ -1,19 +1,12 @@
 #!/usr/bin/bash
 
-####
-# Imports
-####
-source "$ADM/lib.sh"
-
 ##### CONFIGS and VARS
 declare -A package_manager=()
-
 TO_BE_UNSET+=( package_manager )
-
 
 ##### Funcs
 
-pm_register() {
+adm_pm_register() {
     # the prefix that associates a package to a particular package manager
     # E.g.: `pm` is the system's package manager which in ArchLinux is `pacman`
     local sufix="$1"
@@ -31,45 +24,40 @@ pm_register() {
 
     return 0
 }
-TO_BE_UNSET_f+=( "pm_register" )
 
 
 # This function receives a list _packages to install (with suffix)
 # and calls the apropriate package manager for each of them
-pm_install() {
+adm_pm_install() {
     local _packages=( "$@" )
 
-    __pm_call_func "install" "${_packages[@]}"
+    adm_pm__call_func "install" "${_packages[@]}"
     return $?
 }
-TO_BE_UNSET_f+=( "pm_install" )
 
 # Like `pm_install` but removes instead of installing the _packages
-pm_remove() {
+adm_pm_remove() {
     local _packages=( "$@" )
 
-    __pm_call_func "remove" "${_packages}"
+    adm_pm__call_func "remove" "${_packages}"
     return $?
 
 }
-TO_BE_UNSET_f+=( "pm_remove" )
 
-pm_init() {
+adm_pm_init() {
     for pm in $(find "$ADM/package_manager.d" -type f -name "*.sh"); do
         source "$pm"
     done
 }
-TO_BE_UNSET_f+=( "pm_init" )
 
-pm_reset() {
+adm_pm_reset() {
     package_manager=()
 }
-TO_BE_UNSET_f+=( "pm_reset" )
 
 ##### private Funcs
 
 # performs `action` to each packge in `raw_packges` using the package install in its suffix
-__pm_call_func() {
+adm_pm__call_func() {
     local args=( "$@" )
     local action="${args[0]}"
     local raw_packages=( "${args[@]:1}" )
@@ -116,4 +104,3 @@ __pm_call_func() {
 
     return 0
 }
-TO_BE_UNSET_f+=( "__pm_call_func" )

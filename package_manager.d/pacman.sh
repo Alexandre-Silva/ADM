@@ -6,7 +6,7 @@ PACMAN_FLAGS=(
 )
 TO_BE_UNSET+=( "PACMAN_FLAGS")
 
-pm_pacman() {
+adm_pm__pacman() {
     local args=("$@")
     local command=${args[0]}
     local packages=( ${args[@]:1} )
@@ -17,6 +17,5 @@ pm_pacman() {
         *)       err "Invalid command: $command"; return 1 ;;
     esac
 }
-TO_BE_UNSET_f+=( "pm_pacman" )
 
-[[ -x "/usr/bin/pacman" ]] && pm_register "pm" "pm_pacman"
+[[ -x "/usr/bin/pacman" ]] && adm_pm_register "pm" "adm_pm__pacman"

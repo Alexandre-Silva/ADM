@@ -12,7 +12,6 @@ fi
 # sdm.sh requires commands and will complain about it
 # However we are just testing
 source "$ADM/adm.sh" noop
-source "$ADM/lib.sh"
 
 __setup() {
     export TEST_DIR="/tmp/ADM-TEST-DIR"
@@ -32,14 +31,13 @@ a_function() { echo 'run'; }
 EOF
     export TEST_SETUP="$TEST_DIR/test.setup.sh"
 
-
-    pm_reset
+    adm_pm_reset
 }
 
 describe "test adm.sh internals"
-    it "asserts __extract_var"
+    it "asserts adm__extract_var"
         __setup
-        __extract_var "$TEST_SETUP" "packages"
+        adm__extract_var "$TEST_SETUP" "packages"
 
         assert equal "${#ret[@]}" "1"
         assert equal "${ret[0]}" "pm:fortune-mod"
@@ -53,9 +51,9 @@ describe "test adm.sh internals"
         assert equal "${ret[0]}" "$(realpath $TEST_SETUP)"
     end
 
-    it "extract var"
+    it "extracts var"
         __setup
-        __extract_var "$TEST_SETUP" "packages"
+        adm__extract_var "$TEST_SETUP" "packages"
 
         assert equal "1" "${#ret[@]}"
         assert equal "pm:fortune-mod" "${ret[0]}"
@@ -63,7 +61,7 @@ describe "test adm.sh internals"
 
     it "run function"
         __setup
-        out=$(__run_function a_function "$TEST_SETUP" )
+        out=$(adm__run_function a_function "$TEST_SETUP" )
 
         assert equal "$?" "0"
         assert equal "$out" "run"
@@ -97,7 +95,7 @@ describe "testing lib.sh functions"
     end
 
     describe "adm_not_in"
-        it "simple sets"
+        it "base sets"
             assert equal "" "$(adm_not_in '' '')"
             assert equal "a" "$(adm_not_in 'a' '')"
             assert equal "" "$(adm_not_in '' 'a')"
@@ -120,7 +118,7 @@ describe "package managers wrappers"
             __setup
             pm_test() { _called=1; }
 
-            pm_register "test" "pm_test" 1>/dev/null 2>&1
+            adm_pm_register "test" "pm_test" 1>/dev/null 2>&1
 
             assert equal "$?" "0"
             assert equal "${package_manager[test]}" "pm_test"
@@ -130,7 +128,7 @@ describe "package managers wrappers"
             __setup
             _called=0
             pm_test() { _called=1; }
-            pm_register "test" "pm_test" 1>/dev/null 2>&1
+            adm_pm_register "test" "pm_test" 1>/dev/null 2>&1
 
             "${package_manager[test]}"
 
@@ -143,8 +141,8 @@ describe "package managers wrappers"
             pm_test1() { _called=1; }
             pm_test2() { _called=2; }
 
-            pm_register "test" "pm_test1" 1>/dev/null 2>&1
-            pm_register "test" "pm_test2" 1>/dev/null 2>&1
+            adm_pm_register "test" "pm_test1" 1>/dev/null 2>&1
+            adm_pm_register "test" "pm_test2" 1>/dev/null 2>&1
 
             assert equal "$?" "1"
             assert equal "${package_manager[test]}" "pm_test1"
@@ -154,7 +152,7 @@ describe "package managers wrappers"
     describe "install"
         it "install (empty args)"
             __setup
-            pm_install
+            adm_pm_install
 
             assert equal "$?" "0"
         end
@@ -172,10 +170,10 @@ describe "package managers wrappers"
                 return 77 # random number different than 0, 1, and 127
             }
 
-            pm_register "suffixA" "pm_suffixA" 1>/dev/null 2>&1
+            adm_pm_register "suffixA" "pm_suffixA" 1>/dev/null 2>&1
 
             local packages=( "suffixA:foo" "suffixA:bar" )
-            pm_install "${packages[@]}"
+            adm_pm_install "${packages[@]}"
 
             assert equal "$?" "77"
             assert equal "$p_called" "1"
@@ -205,11 +203,11 @@ describe "package managers wrappers"
                 return 0
             }
 
-            pm_register "suffixA" "pm_suffixA" 1>/dev/null 2>&1
-            pm_register "suffixB" "pm_suffixB" 1>/dev/null 2>&1
+            adm_pm_register "suffixA" "pm_suffixA" 1>/dev/null 2>&1
+            adm_pm_register "suffixB" "pm_suffixB" 1>/dev/null 2>&1
 
             local packages=( "suffixA:foo" "suffixB:bar" )
-            pm_install "${packages[@]}"
+            adm_pm_install "${packages[@]}"
 
             assert equal "$?" "0"
             assert equal "$calledA" "1"

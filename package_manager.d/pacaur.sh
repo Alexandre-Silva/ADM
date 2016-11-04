@@ -3,7 +3,7 @@
 PACAUR_FLAGS=( --silent --noedit --noconfirm --noprogressbar --needed )
 TO_BE_UNSET+=( "PACAUR_FLAGS")
 
-pm_pacaur() {
+adm_pm__pacaur() {
     local args=( "$@" )
     local command=${args[0]}
     local packages=( ${args[@]:1} )
@@ -14,6 +14,5 @@ pm_pacaur() {
         *)       err "Invalid command: $command"; return 1 ;;
     esac
 }
-TO_BE_UNSET_f+=( "pm_pacaur" )
 
-[[ -x "/usr/bin/pacaur" ]] && pm_register "aur" "pm_pacaur"
+[[ -x "/usr/bin/pacaur" ]] && adm_pm_register "aur" "adm_pm__pacaur"

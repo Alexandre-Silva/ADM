@@ -12,6 +12,5 @@ fi
 # sdm.sh requires commands and will complain about it
 # However we are just testing
 source "$ADM/adm.sh" noop
-source "$ADM/lib.sh"
 
 shpec/bin/shpec ./test.shpec.sh

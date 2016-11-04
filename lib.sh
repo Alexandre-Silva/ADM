@@ -7,14 +7,6 @@
 
 ## Consts and Vars
 
-# Since ADM is to be sourced rather than being run in a subshell
-# the global environment will be poluted with many unessessary
-# functions and vars.
-# The following two vars are lists of vars and functs to be unset
-# after the normal functioning of the adm.sh script.
-TO_BE_UNSET=()
-TO_BE_UNSET_f=()
-
 
 # Colors
 ESC_SEQ="\x1b["
@@ -97,10 +89,10 @@ TO_BE_UNSET_f+=( "btr_unset_marked" )
 
 # Returns the lines which are in A but not in B. The (-) of set theory.
 #
-# @Usage : $(adm_not_in ...)
+# @Usage: $(adm_not_in ...)
 # @Param $1:A string were each line is a element
 # @Param $2:B string were each line is a element
-# @Returns : Trough stdout the different elements
+# @Returns: Trough stdout the different elements
 function adm_not_in() {
     local a="$1"
     local b="$2"
@@ -109,7 +101,7 @@ function adm_not_in() {
     b=$(echo -ne $b | sort)
 
     # http://stackoverflow.com/questions/18204904/fast-way-of-finding-lines-in-one-file-that-are-not-in-another
-    diff --new-line-format="" --unchanged-line-format="" <(echo "$a") <(echo "$b") \
+    diff --text --new-line-format="" --unchanged-line-format="" <(echo -n "$a") <(echo -n "$b") \
         | sed '/^$/d' # deletes empty lines
     return 0
 }
