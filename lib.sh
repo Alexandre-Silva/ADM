@@ -78,14 +78,6 @@ function btr_unset_f() {
 }
 # not to be unset
 
-# calls btr_unset and btr_unset_f on the values marked to be unset
-function btr_unset_marked() {
-    btr_unset "${TO_BE_UNSET[@]}"
-    btr_unset_f "${TO_BE_UNSET_f[@]}"
-
-    btr_unset "TO_BE_UNSET" "TO_BE_UNSET_f"
-}
-TO_BE_UNSET_f+=( "btr_unset_marked" )
 
 # Returns the lines which are in A but not in B. The (-) of set theory.
 #
