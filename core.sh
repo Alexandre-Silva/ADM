@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 ####
 # CONFIGS and VARS
 ####
@@ -158,6 +160,15 @@ adm_link_setup() {
     return 0
 }
 
+
+# Calls btr_unset and btr_unset_f on the values marked to be unset (TO_BE_UNSET and TO_BE_UNSET_f)
+adm__unset_marked() {
+    btr_unset "${TO_BE_UNSET[@]}"
+    btr_unset_f "${TO_BE_UNSET_f[@]}"
+
+    btr_unset "TO_BE_UNSET" "TO_BE_UNSET_f"
+}
+
 adm_main() {
     local args=( "$@" )
     local command="${args[0]}"
@@ -187,7 +198,7 @@ adm_main() {
     esac
 
     adm__clean_setup_env
-    btr_unset_marked
+    adm__unset_marked
 
     return 0
 }
