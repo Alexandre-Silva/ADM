@@ -31,6 +31,12 @@ a_function() { echo 'run'; }
 EOF
     export TEST_SETUP="$TEST_DIR/test.setup.sh"
 
+    touch "$TEST_DIR/setup.sh"
+    mkdir "$TEST_DIR/A"
+    touch "$TEST_DIR/A/a spaced name.setup.sh"
+    touch "$TEST_DIR/A/setup.sh"
+    touch "$TEST_DIR/A/not_setup.sh"
+
     adm_pm_reset
 }
 
@@ -45,10 +51,14 @@ describe "test adm.sh internals"
 
     it "find setups"
         __setup
-        adm_find_setups "$TEST_DIR"
+        setups="$(adm_find_setups $TEST_DIR)"; IFS=$'\n'; setups=( $setups ); btr_unset IFS
+        expected=("$TEST_DIR/"{A/a\ spaced\ name.setup.sh,A/setup.sh,setup.sh,test.setup.sh})
 
-        assert equal ${#ret[@]} 1
-        assert equal "${ret[0]}" "$(realpath $TEST_SETUP)"
+        assert equal ${#setups[@]} ${#expected[@]}
+
+        for i in $(seq 0 ${#expected[@]}); do
+            assert equal "${setups[$i]}" "${expected[$i]}"
+        done
     end
 
     it "extracts var"
