@@ -24,12 +24,21 @@ adm_reset_setup() {
 # Finds all setup.sh in a given directory and its sub-directorys.
 #
 # @Param $1:root_dir Directory to start searching
-# @Returns: Trough stdout the files separated with \n alphabetically sorted.
-# @Usage: Use inside setups="$(adm_find_setups ...)"; IFS=$'\n' setups=( $setups ); btr_unset IFS
+# @Returns: Stores in ret a alphabetically sorted list of found setups.
 adm_find_setups() {
     local root_dir="$1"
+    ret=()
 
-    find "$(realpath "$root_dir")" -type f -name "*.setup.sh" -or -type f -name "setup.sh" | sort
+    # The IFS must be set to \n so that names with spaces can be treated as one file.
+    IFS=$'\n'
+    for setup in $(find "$(realpath "$root_dir")" \
+                        -type f -name "*.setup.sh" \
+                        -or -type f -name "setup.sh" \
+                        | sort -d ); do
+        ret+=( "$setup" )
+    done
+
+    btr_unset IFS
 }
 
 
@@ -88,7 +97,7 @@ adm_install_setup() {
 adm_remove_setups() {
     ret=()
 
-    local setups="$(adm_find_setups "$DOTFILES")"; IFS=$'\n'; setups=( $setups ); btr_unset IFS
+    adm_find_setups "$DOTFILES"; setups=( "${ret[@]}" )
     for setup in "${setups[@]}"; do
         adm__extract_var "$setup" "packages" || return 0
         adm_pm_remove "${ret[@]}"
@@ -172,7 +181,7 @@ adm_main() {
     local args=( "$@" )
     local command="${args[0]}"
 
-    local setups="$(adm_find_setups "$DOTFILES")"; IFS=$'\n'; setups=( $setups ); btr_unset IFS
+    adm_find_setups "$DOTFILES"; setups=( "${ret[@]}" )
     adm_init
 
     case $command in

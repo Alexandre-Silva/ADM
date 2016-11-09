@@ -13,6 +13,7 @@ fi
 # However we are just testing
 source "$ADM/adm.sh" noop
 
+
 __setup() {
     export TEST_DIR="/tmp/ADM-TEST-DIR"
     [[ -e "$TEST_DIR" ]] && rm -rf "$TEST_DIR"
@@ -51,7 +52,8 @@ describe "test adm.sh internals"
 
     it "find setups"
         __setup
-        setups="$(adm_find_setups $TEST_DIR)"; IFS=$'\n'; setups=( $setups ); btr_unset IFS
+        adm_find_setups "$TEST_DIR"
+        setups=( "${ret[@]}" )
         expected=("$TEST_DIR/"{A/a\ spaced\ name.setup.sh,A/setup.sh,setup.sh,test.setup.sh})
 
         assert equal ${#setups[@]} ${#expected[@]}
