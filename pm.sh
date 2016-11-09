@@ -16,7 +16,6 @@
 declare -A package_manager=()
 TO_BE_UNSET+=( package_manager )
 
-
 ##### Funcs
 
 adm_pm_init() {
@@ -116,3 +115,10 @@ adm_pm__call_func() {
 
     return 0
 }
+
+
+####
+# automatic initialization of package manager wrappers
+####
+
+adm_pm_init

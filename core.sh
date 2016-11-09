@@ -13,7 +13,7 @@ ret=()
 ####
 
 adm_init() {
-    adm_pm_init
+    :
 }
 
 adm_reset_setup() {
@@ -254,7 +254,7 @@ adm__extract_var() {
 
     # is `name` defined ?
     if $(eval '[[ -z ${'"$name"'+x} ]]'); then
-        warn 'Var '"$name"' unset in '"$setup"
+        info 'Var '"$name"' unset or empty in '"$setup"
         return 0
     fi
 
