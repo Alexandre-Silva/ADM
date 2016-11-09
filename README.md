@@ -25,4 +25,4 @@ use some helper functions to prevent polluting the shell's environment.
 TODO: put example
 
 # Important notes
-The prefix 'adm_*' is reserved for internal ADM functions. However you will note that no function is exported even when $ADM/adm.sh is sourced. This is because internally, ADM dinamically unsets *all* functions with that prefix.
+The prefix ```'adm_*'``` is reserved for internal ADM functions. However you will note that no function is exported to the shell environment even tought $ADM/adm.sh is sourced. This is because internally, ADM dinamically unsets *all* functions with that prefix.
