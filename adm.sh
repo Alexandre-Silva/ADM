@@ -10,7 +10,7 @@ TO_BE_UNSET_f=( "__import" )
 # Imports
 ####
 source "$ADM/lib.sh"
-source "$ADM/package_manager.sh"
+source "$ADM/pm.sh"
 source "$ADM/core.sh"
 
 ####

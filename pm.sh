@@ -1,10 +1,29 @@
 #!/usr/bin/bash
 
+# This files handles the loading and use of various package maneger wrappers in pm.d directory.
+#
+# The initialization works by sourcing every .sh in pm.d. Each file there should
+# regitar one or more prefixed to a function defined in the file. That function
+# is the wrapper to the package manager in question.
+#
+# Once all package mangers are loaded adm_pm_install (and family) can be called
+# to perform operations on packages using the wrappers.
+
+
 ##### CONFIGS and VARS
+
+# Association list for prefixes --> package manager functions
 declare -A package_manager=()
 TO_BE_UNSET+=( package_manager )
 
+
 ##### Funcs
+
+adm_pm_init() {
+    for pm in $(find "$ADM/pm.d" -type f -name "*.sh"); do
+        source "$pm"
+    done
+}
 
 adm_pm_register() {
     # the prefix that associates a package to a particular package manager
@@ -25,9 +44,8 @@ adm_pm_register() {
     return 0
 }
 
-
-# This function receives a list _packages to install (with suffix)
-# and calls the apropriate package manager for each of them
+# Installs the packages passed as arguments by calling the appropride package manager.
+# @param @:_packages Each package must contain the prefix which maps to a pm.
 adm_pm_install() {
     local _packages=( "$@" )
 
@@ -42,12 +60,6 @@ adm_pm_remove() {
     adm_pm__call_func "remove" "${_packages}"
     return $?
 
-}
-
-adm_pm_init() {
-    for pm in $(find "$ADM/package_manager.d" -type f -name "*.sh"); do
-        source "$pm"
-    done
 }
 
 adm_pm_reset() {
