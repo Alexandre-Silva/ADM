@@ -31,7 +31,7 @@ adm_pm_register() {
     # The func to call for _packages of a certain manager
     local func="$2"
 
-    running "Binding $sufix to $func"
+    [[ "${ADM_OPT_QUIET}" != t ]] && running "Binding $sufix to $func"
 
     if [[ ! -z ${package_manager[$sufix]} ]]; then
         error "Sufix: $sufix already bound to ${package_manager[$sufix]}"
@@ -115,10 +115,3 @@ adm_pm__call_func() {
 
     return 0
 }
-
-
-####
-# automatic initialization of package manager wrappers
-####
-
-adm_pm_init
