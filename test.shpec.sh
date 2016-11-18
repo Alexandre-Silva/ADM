@@ -105,23 +105,6 @@ describe "testing lib.sh functions"
             assert equal "127" "$?" '`f` was not unset'
         end
     end
-
-    describe "adm_not_in"
-        it "base sets"
-            assert equal "" "$(adm_not_in '' '')"
-            assert equal "a" "$(adm_not_in 'a' '')"
-            assert equal "" "$(adm_not_in '' 'a')"
-            assert equal "" "$(adm_not_in 'a' 'a')"
-            assert equal "a" "$(adm_not_in 'a' 'b')"
-        end
-
-        it "multiple element sets"
-            assert equal "" "$(adm_not_in '' a\\nb)"
-            assert equal "a\nb" "$(adm_not_in a\\nb '')"
-            assert equal "b" "$(adm_not_in a\\nb a\\nc)"
-            assert equal "a\nb\nc" "$(adm_not_in x\\na\\ny\\nb\\nz\\nc x\\ny\\nz)"
-        end
-    end
 end
 
 describe "package managers wrappers"
