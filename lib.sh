@@ -32,7 +32,7 @@ function warn()    { echo -e "$COL_YELLOW[warning]$COL_RESET "$1 ;}
 function error()   { echo -e "$COL_RED[error]$COL_RESET "$1 ;}
 
 TO_BE_UNSET_f+=(
-    "ok" "bot" "running" "action" "warn" "error"
+    "ok" "bot" "running" "action" "info" "warn" "error"
 )
 
 # Returns 0 if function of name `func` is defined
