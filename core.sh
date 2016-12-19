@@ -287,8 +287,8 @@ adm__source_safe() {
 }
 
 adm__clean_setup_env() {
-    local vars=( "packages" )
-    btr_unset "${bars[@]}"
+    local vars=( "packages" "links" )
+    btr_unset "${vars[@]}"
 
     local functions=( "st_install" "st_profile" "st_rc")
     btr_unset_f "${functions[@]}"
