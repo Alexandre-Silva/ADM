@@ -62,7 +62,7 @@ function btr_unset() {
 
     local target
     for target in "${args[@]}"; do
-        [ -z "$(eval echo $(printf '${%s+x}' "$target"))" ] || unset "${opts[@]}" "$target"
+        unset "$target"
     done
 }
 # not to be unset
