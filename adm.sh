@@ -12,6 +12,7 @@ TO_BE_UNSET_f=( "__import" )
 source "$ADM/lib.sh"
 source "$ADM/pm.sh"
 source "$ADM/core.sh"
+source "$ADM/opts.sh"
 
 ####
 # Mark funcs defined inside ADM to be deleted
