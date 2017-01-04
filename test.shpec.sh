@@ -269,3 +269,9 @@ describe "package managers wrappers"
         end
     end
 end
+
+describe "Options parsing"
+    it "Parses bool options"
+        assert equal "${ADM_OPT[verbose]}" t
+    end
+end

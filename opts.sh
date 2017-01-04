@@ -1,9 +1,28 @@
 #!/usr/bin/env bash
 
+#
+# TODO Explaing how this works and why
+#
+
 ####
-# Options global vars (to be used by other scripts)
+# Options parsing constants/globals
 ####
-ADM_OPT_QUIET=
+ADM_OPTSPEC=":hv-:"
+declare -A ADM_OPT # Map of option <name> -> <value>
+declare -A ADM_OPT_SHORT # Map of short options 'name's -> long 'name's (the key in ADM_OPT)
+declare -A ADM_OPT_PARSE # Map of longopt 'name' -> parsing 'function' for said option
+
+### Verbose opt init
+ADM_OPTSPEC+=v
+ADM_OPT[verbose]=t
+ADM_OPT_SHORT[v]=verbose
+ADM_OPT_PARSE[verbose]=adm_parse_verbose
+adm_parse_verbose() { ADM_OPT[verbose]=f }
+# help
+
+####
+# Functions
+####
 
 
 ## Let's do some admin work to find out the variables to be used here
@@ -26,23 +45,29 @@ adm_parse_opts() {
     # In case you wanted to check what variables were passed
     # echo "flags = $*"
 
-    while getopts qh opt; do
+    while getopts "${OPTSPEC}" opt; do
         local longopt=
         case $opt in
             -)
                 val="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
-                longopt="$"
+                longopt="${OPTARG}"
                 ;;
-
-            q) ADM_OPT_QUIET=t ;;
             h)
-                HELP
+                adm_help
+                break
                 ;;
-            \?) #unrecognized option - show help
+            \?)
+                #unrecognized option - show help
                 error "Option -${BOLD}$OPTARG${OFF} not allowed."
-                HELP
+                adm_help
+                break;
+                ;;
+            *) # small option name
+                longopt=ADM_OPT_SHORT[$opt]
                 ;;
         esac
+
+        ADM_OPT_PARSE[${longopt}]
     done
 }
 
@@ -51,37 +76,36 @@ adm_parse_opts() {
 # adm_parse_opts "$@"
 # adm_help
 
-OPTSPEC=":hv-:"
-while getopts "$OPTSPEC" optchar; do
-    case "${optchar}" in
-        -)
-            case "${OPTARG}" in
-                loglevel)
-                    val="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
-                    echo "Parsing option: '--${OPTARG}', value: '${val}'" >&2;
-                    ;;
-                loglevel=*)
-                    val=${OPTARG#*=}
-                    opt=${OPTARG%=$val}
-                    echo "Parsing option: '--${opt}', value: '${val}'" >&2
-                    ;;
-                *)
-                    if [ "$OPTERR" = 1 ] && [ "${OPTSPEC:0:1}" != ":" ]; then
-                        echo "Unknown option --${OPTARG}" >&2
-                    fi
-                    ;;
-            esac;;
-        h)
-            echo "usage: $0 [-v] [--loglevel[=]<value>]" >&2
-            exit 2
-            ;;
-        v)
-            echo "Parsing option: '-${optchar}'" >&2
-            ;;
-        *)
-            if [ "$OPTERR" != 1 ] || [ "${OPTSPEC:0:1}" = ":" ]; then
-                echo "Non-option argument: '-${OPTARG}'" >&2
-            fi
-            ;;
-    esac
-done
+# while getopts "$OPTSPEC" optchar; do
+#     case "${optchar}" in
+#         -)
+#             case "${OPTARG}" in
+#                 loglevel)
+#                     val="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
+#                     echo "Parsing option: '--${OPTARG}', value: '${val}'" >&2;
+#                     ;;
+#                 loglevel=*)
+#                     val=${OPTARG#*=}
+#                     opt=${OPTARG%=$val}
+#                     echo "Parsing option: '--${opt}', value: '${val}'" >&2
+#                     ;;
+#                 *)
+#                     if [ "$OPTERR" = 1 ] && [ "${OPTSPEC:0:1}" != ":" ]; then
+#                         echo "Unknown option --${OPTARG}" >&2
+#                     fi
+#                     ;;
+#             esac;;
+#         h)
+#             echo "usage: $0 [-v] [--loglevel[=]<value>]" >&2
+#             exit 2
+#             ;;
+#         v)
+#             echo "Parsing option: '-${optchar}'" >&2
+#             ;;
+#         *)
+#             if [ "$OPTERR" != 1 ] || [ "${OPTSPEC:0:1}" = ":" ]; then
+#                 echo "Non-option argument: '-${OPTARG}'" >&2
+#             fi
+#             ;;
+#     esac
+# done
