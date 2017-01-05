@@ -12,17 +12,32 @@ declare -A ADM_OPT # Map of option <name> -> <value>
 declare -A ADM_OPT_SHORT # Map of short options 'name's -> long 'name's (the key in ADM_OPT)
 declare -A ADM_OPT_PARSE # Map of longopt 'name' -> parsing 'function' for said option
 
-### Verbose opt init
-ADM_OPTSPEC+=v
-ADM_OPT[verbose]=t
-ADM_OPT_SHORT[v]=verbose
-ADM_OPT_PARSE[verbose]=adm_parse_verbose
-adm_parse_verbose() { ADM_OPT[verbose]=f }
-# help
 
 ####
 # Functions
 ####
+
+# Adds an option which can be parsed by adm_parse_opts.
+#
+# @Param $1:name The name used to identify the option and pass to adm.sh.
+#                e.g. verbose is --verbose. The name must not have spaces.
+# @Param $2:short_name The short version of the option. Pass '' to ignore this.
+# @Param $3:default The initial value for the option in ADM_OPT[${name}]. Pass '' to ignore this.
+# @Param $4:parser The function to use when the option is passed to adm.sh. See the section about parsers.
+# @Returns: 0 on success -1 if an error is encountered
+adm_add_option() {
+    local name="$1"
+    local short_name="$2"
+    local default="$3"
+    local parser="$4"
+
+    ADM_OPT["${name}"]="${default}"
+    if [[ -n "${short_name}" ]]; then
+        ADM_OPTSPEC+="${short_name}"
+        ADM_OPT_SHORT["${short_name}"]="${name}"
+    fi
+    ADM_OPT_PARSE["${name}"]="${parser}"
+}
 
 
 ## Let's do some admin work to find out the variables to be used here
@@ -62,7 +77,7 @@ adm_parse_opts() {
                 adm_help
                 break;
                 ;;
-            *) # small option name
+            *) # short option convert to
                 longopt=ADM_OPT_SHORT[$opt]
                 ;;
         esac
@@ -71,6 +86,9 @@ adm_parse_opts() {
     done
 }
 
+### Verbose opt init
+adm_add_option verbose v t verbose adm_parse_verbose
+# help
 
 # source lib.sh
 # adm_parse_opts "$@"
