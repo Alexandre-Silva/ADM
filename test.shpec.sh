@@ -274,4 +274,15 @@ describe "Options parsing"
     it "Parses bool options"
         assert equal "${ADM_OPT[verbose]}" t
     end
+
+    it "Ignores non option"
+        adm_parse_opts -v
+        assert equal $? 0
+
+        adm_parse_opts a
+        assert equal $? 0
+
+        adm_parse_opts -v a -v b -v c
+        assert equal $? 0
+    end
 end

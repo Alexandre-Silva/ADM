@@ -7,7 +7,7 @@
 ####
 # Options parsing constants/globals
 ####
-ADM_OPTSPEC=":hv-:"
+ADM_OPTSPEC=":h-:"
 declare -A ADM_OPT # Map of option <name> -> <value>
 declare -A ADM_OPT_SHORT # Map of short options 'name's -> long 'name's (the key in ADM_OPT)
 declare -A ADM_OPT_PARSE # Map of longopt 'name' -> parsing 'function' for said option
@@ -32,6 +32,7 @@ adm_add_option() {
     local parser="$4"
 
     ADM_OPT["${name}"]="${default}"
+    echo "${short_name}"
     if [[ -n "${short_name}" ]]; then
         ADM_OPTSPEC+="${short_name}"
         ADM_OPT_SHORT["${short_name}"]="${name}"
@@ -56,11 +57,8 @@ function adm_help {
     exit 1
 }
 
-adm_parse_opts() {
-    # In case you wanted to check what variables were passed
-    # echo "flags = $*"
-
-    while getopts "${OPTSPEC}" opt; do
+adm_parse_opts2() {
+    while getopts "${ADM_OPTSPEC}" opt; do
         local longopt=
         case $opt in
             -)
@@ -77,17 +75,32 @@ adm_parse_opts() {
                 adm_help
                 break;
                 ;;
-            *) # short option convert to
-                longopt=ADM_OPT_SHORT[$opt]
+            *) # convert short option to normal name
+                longopt=${ADM_OPT_SHORT[$opt]}
                 ;;
         esac
 
-        ADM_OPT_PARSE[${longopt}]
+        ${ADM_OPT_PARSE[${longopt}]} "${longopt}" "${ADM_OPT[${longopt}]}"
     done
 }
 
+adm_parse_opts() {
+    local args=( "$@" )
+    # In case you wanted to check what variables were passed
+    # echo "flags = $*"
+
+    local opts=()
+    for arg in "${args[@]}"; do
+        if [[ "${arg}" == -* ]]; then
+            opts+=( "${arg}" )
+        fi
+    done
+    adm_parse_opts2 "${opts[@]}"
+}
+
 ### Verbose opt init
-adm_add_option verbose v t verbose adm_parse_verbose
+adm_parse_verbose() { ADM_OPT[verbose]=f ;}
+adm_add_option verbose v t adm_parse_verbose
 # help
 
 # source lib.sh
