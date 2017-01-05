@@ -181,16 +181,7 @@ adm_main() {
     local args=( "$@" )
     local command="${args[0]}"
 
-    # TODO rafac this into opt parser (when implemented)
-    local arg
-    export ADM_OPT_QUIET=f
-    TO_BE_UNSET+=( "ADM_OPT_QUIET" )
-    for arg in "${args[@]}"; do
-        if [[ "${arg}" == --quiet ]] || [[ "${arg}" == -q ]]; then
-            ADM_OPT_QUIET=t
-        fi
-    done
-
+    adm_parse_opts "${args[@]}"
     adm_find_setups "$DOTFILES"; setups=( "${ret[@]}" )
     adm_init
 

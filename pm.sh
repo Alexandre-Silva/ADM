@@ -31,7 +31,7 @@ adm_pm_register() {
     # The func to call for _packages of a certain manager
     local func="$2"
 
-    [[ "${ADM_OPT_QUIET}" != t ]] && running "Binding $sufix to $func"
+    [[ "${ADM_OPT[verbose]}" == t ]] && running "Binding $sufix to $func"
 
     if [[ ! -z ${package_manager[$sufix]} ]]; then
         error "Sufix: $sufix already bound to ${package_manager[$sufix]}"
