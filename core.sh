@@ -181,7 +181,10 @@ adm_main() {
     local args=( "$@" )
     local command="${args[0]}"
 
-    adm_parse_opts "${args[@]}"
+    adm_opts_init
+    adm_opts_build_parser
+    adm_opts_parse "${args[@]}"
+
     adm_find_setups "$DOTFILES"; setups=( "${ret[@]}" )
     adm_init
 

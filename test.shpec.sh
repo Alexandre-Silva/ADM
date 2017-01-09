@@ -276,13 +276,13 @@ describe "Options parsing"
     end
 
     it "Ignores non option"
-        adm_parse_opts -v
+        adm_opts_parse -v
         assert equal $? 0
 
-        adm_parse_opts a
+        adm_opts_parse a
         assert equal $? 0
 
-        adm_parse_opts -v a -v b -v c
+        adm_opts_parse -v a -v b -v c
         assert equal $? 0
     end
 end

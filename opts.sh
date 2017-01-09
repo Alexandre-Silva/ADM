@@ -7,7 +7,8 @@
 ####
 # Options parsing constants/globals
 ####
-ADM_OPTSPEC=":h-:"
+ADM_OPTSPEC_DEFAULT=":h-:"
+ADM_OPTSPEC="${ADM_OPTSPEC_DEFAULT}"
 declare -A ADM_OPT # Map of option <name> -> <value>
 declare -A ADM_OPT_SHORT # Map of short options 'name's -> long 'name's (the key in ADM_OPT)
 declare -A ADM_OPT_PARSE # Map of longopt 'name' -> parsing 'function' for said option
@@ -57,7 +58,7 @@ function adm_help {
     exit 1
 }
 
-adm_parse_opts2() {
+adm_opts_parse2() {
     while getopts "${ADM_OPTSPEC}" opt; do
         local longopt=
         case $opt in
@@ -84,7 +85,7 @@ adm_parse_opts2() {
     done
 }
 
-adm_parse_opts() {
+adm_opts_parse() {
     local args=( "$@" )
     # In case you wanted to check what variables were passed
     # echo "flags = $*"
@@ -95,48 +96,22 @@ adm_parse_opts() {
             opts+=( "${arg}" )
         fi
     done
-    adm_parse_opts2 "${opts[@]}"
+    adm_opts_parse2 "${opts[@]}"
 }
 
-### Verbose opt init
-adm_parse_verbose() { ADM_OPT[verbose]=f ;}
-adm_add_option verbose v t adm_parse_verbose
-# help
+adm_opts_init() {
+    # clean ADM_OPTS*
+    btr_unset ADM_OPT ADM_OPT_SHORT ADM_OPT_PARSE
 
-# source lib.sh
-# adm_parse_opts "$@"
-# adm_help
+    ADM_OPTSPEC="${ADM_OPTSPEC_DEFAULT}"
+    declare -A ADM_OPT # Map of option <name> -> <value>
+    declare -A ADM_OPT_SHORT # Map of short options 'name's -> long 'name's (the key in ADM_OPT)
+    declare -A ADM_OPT_PARSE # Map of longopt 'name' -> parsing 'function' for said option
 
-# while getopts "$OPTSPEC" optchar; do
-#     case "${optchar}" in
-#         -)
-#             case "${OPTARG}" in
-#                 loglevel)
-#                     val="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
-#                     echo "Parsing option: '--${OPTARG}', value: '${val}'" >&2;
-#                     ;;
-#                 loglevel=*)
-#                     val=${OPTARG#*=}
-#                     opt=${OPTARG%=$val}
-#                     echo "Parsing option: '--${opt}', value: '${val}'" >&2
-#                     ;;
-#                 *)
-#                     if [ "$OPTERR" = 1 ] && [ "${OPTSPEC:0:1}" != ":" ]; then
-#                         echo "Unknown option --${OPTARG}" >&2
-#                     fi
-#                     ;;
-#             esac;;
-#         h)
-#             echo "usage: $0 [-v] [--loglevel[=]<value>]" >&2
-#             exit 2
-#             ;;
-#         v)
-#             echo "Parsing option: '-${optchar}'" >&2
-#             ;;
-#         *)
-#             if [ "$OPTERR" != 1 ] || [ "${OPTSPEC:0:1}" = ":" ]; then
-#                 echo "Non-option argument: '-${OPTARG}'" >&2
-#             fi
-#             ;;
-#     esac
-# done
+}
+
+adm_opts_build_parser() {
+    ### Verbose opt init
+    adm_parse_verbose() { ADM_OPT[verbose]=f ;}
+    adm_add_option verbose v t adm_parse_verbose
+}
