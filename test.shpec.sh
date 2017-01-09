@@ -270,19 +270,74 @@ describe "package managers wrappers"
     end
 end
 
+test_opts_init () {
+    adm_opts_init
+
+    adm_opts_add alpha a f adm_opts_set_true
+    adm_opts_add beta b f adm_opts_set_true
+    adm_opts_add gamma g f adm_opts_set_true
+}
+
+test_opts_assert () {
+    assert equal "${ADM_OPT[alpha]}" "$1"
+    assert equal "${ADM_OPT[beta]}" "$2"
+    assert equal "${ADM_OPT[gamma]}" "$3"
+}
+
 describe "Options parsing"
-    it "Parses bool options"
-        assert equal "${ADM_OPT[verbose]}" t
+    it "trivial"
+        test_opts_init
+
+        test_opts_assert f f f
+
+        adm_opts_parse -a
+        test_opts_assert t f f
+
+        test_opts_init
+        adm_opts_parse --alpha -a
+        test_opts_assert t f f
+    end
+
+    it "only intended option has its value changed"
+        test_opts_init
+        adm_opts_parse -ab
+        test_opts_assert t t f
+
+        test_opts_init
+        adm_opts_parse -bg
+        test_opts_assert f t t
+
+        test_opts_init
+        adm_opts_parse -ag
+        test_opts_assert t f t
+
+        test_opts_init
+        adm_opts_parse --gamma --alpha
+        test_opts_assert t f t
+
+        test_opts_init
+        adm_opts_parse -b --gamma
+        test_opts_assert f t t
+
+        test_opts_init
+        adm_opts_parse --gamma -a --beta
+        test_opts_assert t t t
+
+        test_opts_init
+        adm_opts_parse -gba
+        test_opts_assert t t t
     end
 
     it "Ignores non option"
-        adm_opts_parse -v
+        test_opts_init
+
+        adm_opts_parse -a
         assert equal $? 0
 
         adm_opts_parse a
         assert equal $? 0
 
-        adm_opts_parse -v a -v b -v c
+        adm_opts_parse -a a -a b -a c
         assert equal $? 0
     end
 end

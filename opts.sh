@@ -7,16 +7,24 @@
 ####
 # Options parsing constants/globals
 ####
-ADM_OPTSPEC_DEFAULT=":h-:"
-ADM_OPTSPEC="${ADM_OPTSPEC_DEFAULT}"
-declare -A ADM_OPT # Map of option <name> -> <value>
-declare -A ADM_OPT_SHORT # Map of short options 'name's -> long 'name's (the key in ADM_OPT)
-declare -A ADM_OPT_PARSE # Map of longopt 'name' -> parsing 'function' for said option
-
+ADM_OPTSPEC_DEFAULT="h-:"
 
 ####
 # Functions
 ####
+
+
+adm_opts_init() {
+    # clean ADM_OPT*
+    btr_unset ADM_OPT ADM_OPT_SHORT ADM_OPT_PARSE OPTIND OPTERR OPTARG
+
+
+    ADM_OPTSPEC="${ADM_OPTSPEC_DEFAULT}"
+    declare -gA ADM_OPT # Map of option <name> -> <value>
+    declare -gA ADM_OPT_SHORT # Map of short options 'name's -> long 'name's (the key in ADM_OPT)
+    declare -gA ADM_OPT_PARSE # Map of longopt 'name' -> parsing 'function' for said option
+}
+
 
 # Adds an option which can be parsed by adm_parse_opts.
 #
@@ -26,19 +34,18 @@ declare -A ADM_OPT_PARSE # Map of longopt 'name' -> parsing 'function' for said 
 # @Param $3:default The initial value for the option in ADM_OPT[${name}]. Pass '' to ignore this.
 # @Param $4:parser The function to use when the option is passed to adm.sh. See the section about parsers.
 # @Returns: 0 on success -1 if an error is encountered
-adm_add_option() {
+adm_opts_add() {
     local name="$1"
     local short_name="$2"
     local default="$3"
     local parser="$4"
 
-    ADM_OPT["${name}"]="${default}"
-    echo "${short_name}"
+    ADM_OPT[${name}]="${default}"
     if [[ -n "${short_name}" ]]; then
         ADM_OPTSPEC+="${short_name}"
-        ADM_OPT_SHORT["${short_name}"]="${name}"
+        ADM_OPT_SHORT[${short_name}]="${name}"
     fi
-    ADM_OPT_PARSE["${name}"]="${parser}"
+    ADM_OPT_PARSE[${name}]="${parser}"
 }
 
 
@@ -60,11 +67,12 @@ function adm_help {
 
 adm_opts_parse2() {
     while getopts "${ADM_OPTSPEC}" opt; do
-        local longopt=
+        local longopt=""
         case $opt in
             -)
-                val="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
+                # val="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
                 longopt="${OPTARG}"
+                unset OPTARG
                 ;;
             h)
                 adm_help
@@ -76,7 +84,8 @@ adm_opts_parse2() {
                 adm_help
                 break;
                 ;;
-            *) # convert short option to normal name
+            *)
+                # convert short option to normal name
                 longopt=${ADM_OPT_SHORT[$opt]}
                 ;;
         esac
@@ -92,26 +101,23 @@ adm_opts_parse() {
 
     local opts=()
     for arg in "${args[@]}"; do
-        if [[ "${arg}" == -* ]]; then
+        if [[ "${arg}" =~ ^-.*$ ]]; then
             opts+=( "${arg}" )
         fi
     done
     adm_opts_parse2 "${opts[@]}"
 }
 
-adm_opts_init() {
-    # clean ADM_OPTS*
-    btr_unset ADM_OPT ADM_OPT_SHORT ADM_OPT_PARSE
-
-    ADM_OPTSPEC="${ADM_OPTSPEC_DEFAULT}"
-    declare -A ADM_OPT # Map of option <name> -> <value>
-    declare -A ADM_OPT_SHORT # Map of short options 'name's -> long 'name's (the key in ADM_OPT)
-    declare -A ADM_OPT_PARSE # Map of longopt 'name' -> parsing 'function' for said option
-
-}
-
 adm_opts_build_parser() {
     ### Verbose opt init
-    adm_parse_verbose() { ADM_OPT[verbose]=f ;}
-    adm_add_option verbose v t adm_parse_verbose
+    adm_opts_add verbose v "" adm_opts_set_true
 }
+
+## adm_parse_*
+
+# the following functions are helps for common parser operations. Were the first
+# argument $1 is always the name of the option and $2 the its value if
+# ${ADM_OPT[$opt_name]}
+
+
+adm_opts_set_true () { ADM_OPT[$1]=t; }
