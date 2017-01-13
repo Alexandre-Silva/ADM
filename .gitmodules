@@ -1,3 +1,4 @@
 [submodule "shpec"]
 	path = shpec
-	url = https://github.com/rylnd/shpec
+	url = git@github.com:Alexandre-Silva/shpec
+	#url = https://github.com/rylnd/shpec
