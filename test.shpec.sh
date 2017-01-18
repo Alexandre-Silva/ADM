@@ -37,6 +37,8 @@ EOF
     touch "$TEST_DIR/A/a spaced name.setup.sh"
     touch "$TEST_DIR/A/setup.sh"
     touch "$TEST_DIR/A/not_setup.sh"
+    mkdir "$TEST_DIR/B"
+    touch "$TEST_DIR/B/some.setup.sh"
 
     adm_pm_reset
 }
@@ -54,7 +56,46 @@ describe "test adm.sh internals"
         __setup
         adm_find_setups "$TEST_DIR"
         setups=( "${ret[@]}" )
-        expected=("$TEST_DIR/"{A/a\ spaced\ name.setup.sh,A/setup.sh,setup.sh,test.setup.sh})
+        expected=("$TEST_DIR/"{A/a\ spaced\ name.setup.sh,A/setup.sh,B/some.setup.sh,setup.sh,test.setup.sh})
+
+        assert equal ${#setups[@]} ${#expected[@]}
+
+        for i in $(seq 0 ${#expected[@]}); do
+            assert equal "${setups[$i]}" "${expected[$i]}"
+        done
+    end
+
+    it "extract setup path"
+        __setup
+        adm_opts_init
+
+        adm_extract_setup_paths "$TEST_DIR"
+
+        setups=( "${ret[@]}" )
+        assert equal ${#setups[@]} 1
+        assert equal ${setups[0]} "$TEST_DIR/setup.sh"
+    end
+
+    it "extract setup path (empty dir)"
+        __setup
+        adm_opts_init
+
+        adm_extract_setup_paths "$TEST_DIR/B"
+
+        setups=( "${ret[@]}" )
+        assert equal ${#setups[@]} 1
+        assert equal ${setups[0]} "$TEST_DIR/B"
+    end
+
+    it "extract setups paths recursively"
+        __setup
+        adm_opts_init
+        adm_opts_set_true recursive
+
+        adm_extract_setup_paths "$TEST_DIR"
+        setups=( "${ret[@]}" )
+
+        expected=("$TEST_DIR/"{A/a\ spaced\ name.setup.sh,A/setup.sh,B/some.setup.sh,setup.sh,test.setup.sh})
 
         assert equal ${#setups[@]} ${#expected[@]}
 

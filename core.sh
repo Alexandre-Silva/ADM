@@ -34,7 +34,7 @@ adm_find_setups() {
     for setup in $(find "$(realpath "$root_dir")" \
                         -type f -name "*.setup.sh" \
                         -or -type f -name "setup.sh" \
-                        | sort -d ); do
+                       | sort -d ); do
         ret+=( "$setup" )
     done
 
@@ -168,13 +168,22 @@ adm_link_setup() {
     return 0
 }
 
+adm_extract_setup_paths() {
+    local setups=()
+    for setup in "$@"; do
+        if [[ "${ADM_OPT[recursive]}" == t ]]; then
+            adm_find_setups "${setup}"; setups=( "${ret[@]}" )
 
-# Calls btr_unset and btr_unset_f on the values marked to be unset (TO_BE_UNSET and TO_BE_UNSET_f)
-adm__unset_marked() {
-    btr_unset "${TO_BE_UNSET[@]}"
-    btr_unset_f "${TO_BE_UNSET_f[@]}"
+        else
+            if [[ -d "${setup}" && -f "${setup}/setup.sh" ]]; then
+                setups+=( "${setup}/setup.sh" )
+            else
+                setups+=( "${setup}" )
+            fi
+        fi
+    done
 
-    btr_unset "TO_BE_UNSET" "TO_BE_UNSET_f"
+    ret=( "${setups[@]}" )
 }
 
 adm_main() {
@@ -185,26 +194,26 @@ adm_main() {
     adm_opts_build_parser
     adm_opts_parse "${args[@]}"
 
-    adm_find_setups "$DOTFILES"; setups=( "${ret[@]}" )
+    # remove options
+    local _args=()
+    for arg in "${args[@]}"; do
+        if [[ arg != -* ]]; then
+            _args+=( "${arg}" )
+        fi
+    done
+    args=( "${_args[@]:1}" )
+
+    adm_extract_setup_paths "${args[@]}"
+    setups=( "${ret[@]}" )
+
     adm_init
 
     case $command in
-        install)
-            if [ -n "${args[1]}" ]; then
-                adm_install_setup "$(realpath "${args[1]}")"
-            else
-                echo "No setup provided. Installing ALL of them."
-                adm_install_setup "${setups[@]}"
-            fi
-            ;;
-
+        install) adm_install_setup "${setups[@]}" ;;
         remove) adm_remove_setups ;;
-        profile) adm__run_function "st_profile" "$(realpath "${args[1]}")" ;;
-        profiles) adm__run_function "st_profile" "${setups[@]}" ;;
-        rc) adm__run_function "st_rc" "$(realpath "${args[1]}")" ;;
-        rcs) adm__run_function "st_rc" "${setups[@]}" ;;
-        link) adm_link_setup "$(realpath "${args[1]}")" ;;
-        links) adm_link_setup "${setups[@]}" ;;
+        profile) adm__run_function "st_profile" "${args[@]}" ;;
+        rc) adm__run_function "st_rc" "${args[@]}" ;;
+        link) adm_link_setup "${args[@]}" ;;
         noop) return 0 ;; # testing purposes
         *) error "Invalid commands: $command" ; return 1 ;;
     esac
@@ -214,6 +223,7 @@ adm_main() {
 
     return 0
 }
+
 
 ####
 # Private Funcs
@@ -268,7 +278,6 @@ adm__extract_var() {
     return 0
 }
 
-
 # Sources a certain while maintaining certain protections
 adm__source_safe() {
     local setup="$1"
@@ -286,4 +295,12 @@ adm__clean_setup_env() {
 
     local functions=( "st_install" "st_profile" "st_rc")
     btr_unset_f "${functions[@]}"
+}
+
+# Calls btr_unset and btr_unset_f on the values marked to be unset (TO_BE_UNSET and TO_BE_UNSET_f)
+adm__unset_marked() {
+    btr_unset "${TO_BE_UNSET[@]}"
+    btr_unset_f "${TO_BE_UNSET_f[@]}"
+
+    btr_unset "TO_BE_UNSET" "TO_BE_UNSET_f"
 }

@@ -111,6 +111,7 @@ adm_opts_parse() {
 adm_opts_build_parser() {
     ### Verbose opt init
     adm_opts_add verbose v "" adm_opts_set_true
+    adm_opts_add recursive r "" adm_opts_set_true
 }
 
 ## adm_parse_*
