@@ -188,7 +188,6 @@ adm_extract_setup_paths() {
 
 adm_main() {
     local args=( "$@" )
-    local command="${args[0]}"
 
     adm_opts_init
     adm_opts_build_parser
@@ -197,10 +196,11 @@ adm_main() {
     # remove options
     local _args=()
     for arg in "${args[@]}"; do
-        if [[ arg != -* ]]; then
+        if [[ "${arg}" != -* ]]; then
             _args+=( "${arg}" )
         fi
     done
+    local command="${_args[0]}"
     args=( "${_args[@]:1}" )
 
     adm_extract_setup_paths "${args[@]}"
@@ -211,9 +211,9 @@ adm_main() {
     case $command in
         install) adm_install_setup "${setups[@]}" ;;
         remove) adm_remove_setups ;;
-        profile) adm__run_function "st_profile" "${args[@]}" ;;
-        rc) adm__run_function "st_rc" "${args[@]}" ;;
-        link) adm_link_setup "${args[@]}" ;;
+        profile) adm__run_function "st_profile" "${setups[@]}" ;;
+        rc) adm__run_function "st_rc" "${setups[@]}" ;;
+        link) adm_link_setup "${setups[@]}" ;;
         noop) return 0 ;; # testing purposes
         *) error "Invalid commands: $command" ; return 1 ;;
     esac
