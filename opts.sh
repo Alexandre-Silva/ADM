@@ -66,12 +66,16 @@ function adm_help {
 }
 
 adm_opts_parse2() {
-    while getopts "${ADM_OPTSPEC}" opt; do
+    # DOT NOT REMOVE THIS
+    # zsh'S getopts fails to work as intended if the variables are unset rather than empty
+    OPTIND=
+    OPTARG=
+
+    while getopts "${ADM_OPTSPEC}" opt "$@"; do
         local longopt=""
         case $opt in
             -)
                 longopt="${OPTARG}"
-                # val="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
                 ;;
             h)
                 adm_help
