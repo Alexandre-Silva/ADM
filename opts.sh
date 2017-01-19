@@ -71,6 +71,7 @@ adm_opts_parse2() {
         case $opt in
             -)
                 longopt="${OPTARG}"
+                # val="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
                 ;;
             h)
                 adm_help
@@ -90,6 +91,7 @@ adm_opts_parse2() {
 
         ${ADM_OPT_PARSE[${longopt}]} "${longopt}" "${ADM_OPT[${longopt}]}"
     done
+    return 0
 }
 
 adm_opts_parse() {

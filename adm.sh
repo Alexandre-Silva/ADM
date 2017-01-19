@@ -36,6 +36,6 @@ rm -f $old_env_f
 # Main
 ####
 
-[ -n "${ZSH_VERSION:-}" ] && emulate bash
+if [ -n "${ZSH_VERSION:-}" ]; then emulate bash ; fi
 adm_main "$@"
-[ -n "${ZSH_VERSION:-}" ] && emulate zsh
+if [ -n "${ZSH_VERSION:-}" ]; then emulate zsh ; fi
