@@ -70,10 +70,7 @@ adm_opts_parse2() {
         local longopt=""
         case $opt in
             -)
-                echo $OPTIND
-                OPTIND=$(( $OPTIND + 1 ))
                 longopt="${OPTARG}"
-                # unset OPTARG
                 ;;
             h)
                 adm_help
@@ -106,9 +103,7 @@ adm_opts_parse() {
             opts+=( "${arg}" )
         fi
     done
-    set -x
     adm_opts_parse2 "${opts[@]}"
-    set +x
 }
 
 adm_opts_build_parser() {
