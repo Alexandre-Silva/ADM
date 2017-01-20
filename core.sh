@@ -176,10 +176,9 @@ adm_extract_setup_paths() {
 
         else
             if [[ -d "${setup}" && -f "${setup}/setup.sh" ]]; then
-                setups+=( "${setup}/setup.sh" )
-            else
-                setups+=( "${setup}" )
+                setup+="/setup.sh"
             fi
+            setups+=( "$(realpath "${setup}")" )
         fi
     done
 
