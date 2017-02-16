@@ -10,7 +10,12 @@ adm_pm__luarocks() {
     local packages=( ${args[@]:1} )
 
     case $command in
-        install) luarocks install "${LUAROCKS_FLAGS[@]}" "${packages[@]}" ;;
+        install)
+            for pkg in "${packages[@]}"; do
+                luarocks install "${LUAROCKS_FLAGS[@]}" "${pkg}"
+            done
+            ;;
+
         *)       err "Invalid command: $command"; return 1 ;;
     esac
 }
