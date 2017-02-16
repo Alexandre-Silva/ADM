@@ -18,4 +18,4 @@ adm_pm__pacman() {
     esac
 }
 
-[[ -x "/usr/bin/pacman" ]] && adm_pm_register "pm" "adm_pm__pacman"
+hash pacman &>/dev/null && adm_pm_register "pm" "adm_pm__pacman"

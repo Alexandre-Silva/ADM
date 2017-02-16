@@ -15,4 +15,4 @@ adm_pm__npm() {
     esac
 }
 
-[[ -x "/usr/bin/npm" ]] && adm_pm_register "npm" "adm_pm__npm"
+hash npm &>/dev/null && adm_pm_register "npm" "adm_pm__npm"

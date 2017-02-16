@@ -15,4 +15,4 @@ adm_pm__pacaur() {
     esac
 }
 
-[[ -x "/usr/bin/pacaur" ]] && adm_pm_register "aur" "adm_pm__pacaur"
+hash pacaur &>/dev/null && adm_pm_register "aur" "adm_pm__pacaur"
