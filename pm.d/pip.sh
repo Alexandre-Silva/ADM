@@ -2,7 +2,9 @@
 
 TO_BE_UNSET+=( "PIP_FLAGS" )
 
-PIP_FLAGS=( )
+PIP_FLAGS=(
+    --upgrade # updates packages if installed but not up-to-date
+)
 
 adm_pm__pip() {
     local args=( "$@" )
