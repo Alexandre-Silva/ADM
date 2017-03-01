@@ -12,7 +12,7 @@ adm_pm__pip() {
     local packages=( ${args[@]:1} )
 
     case $command in
-        install) sudo pip install "${PIP_FLAGS[@]}" "${packages[@]}" ;;
+        install) sudo pip install --upgrade "${PIP_FLAGS[@]}" "${packages[@]}" ;;
         *)       err "Invalid command: $command"; return 1 ;;
     esac
 }
