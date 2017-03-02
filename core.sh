@@ -55,14 +55,7 @@ adm_install_setup() {
     done
 
 
-    # Find and install all setups packages
-    local all_packages=()
-    for setup in "${setups[@]}"; do
-        adm__extract_var "$setup" "packages" || return 1
-        all_packages+=( "${ret[@]}" )
-    done
-
-    adm_pm_install "${all_packages[@]}" || return 1
+    adm_install_pkgs "${setups[@]}" || return 1
 
     # prepare temporary dirs
     local curr_dir=$(pwd)
@@ -82,10 +75,9 @@ adm_install_setup() {
 
         [[ $ret_code -eq 0 ]] || break
     done
-    set +x
 
     # linkings
-    adm_link_setup "${setups[@]}"
+    [[ $ret_code -eq 0 ]] && adm_link_setup "${setups[@]}"
 
     # Clean up
     builtin cd "$curr_dir"
@@ -168,6 +160,20 @@ adm_link_setup() {
     return 0
 }
 
+# Installs all packages from the given setup files
+adm_install_pkgs() {
+    # Find and install all setups packages
+    local all_packages=()
+    for setup in "$@"; do
+        adm__extract_var "$setup" "packages" || return 1
+        all_packages+=( "${ret[@]}" )
+    done
+
+    adm_pm_install "${all_packages[@]}" || return 1
+
+    return 0
+}
+
 adm_extract_setup_paths() {
     local setups=()
     for setup in "$@"; do
@@ -213,6 +219,7 @@ adm_main() {
         profile) adm__run_function "st_profile" "${setups[@]}" ;;
         rc) adm__run_function "st_rc" "${setups[@]}" ;;
         link) adm_link_setup "${setups[@]}" ;;
+        pkgs) adm_install_pkgs "${setups[@]}" ;;
         noop) return 0 ;; # testing purposes
         *) error "Invalid commands: $command" ; return 1 ;;
     esac
