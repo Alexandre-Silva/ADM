@@ -174,6 +174,19 @@ adm_install_pkgs() {
     return 0
 }
 
+# lists all setups
+adm_list() {
+    local args=( "$@" )
+    [[ "${#args[@]}" == 0 ]] && args=("${DOTFILES}")
+
+    for arg in "${args[@]}"; do
+        while IFS= read -r -d '' file; do
+            printf "%s${COL_BLUE}/%s${COL_RESET}\n" "$(dirname "$file")" "$(basename "$file")"
+        done < <(find "${arg}" -regextype sed -regex '\(.*.setup.sh\)\|\(setup.sh\)' -type f -print0)
+    done
+
+}
+
 adm_extract_setup_paths() {
     local setups=()
     for setup in "$@"; do
@@ -209,18 +222,19 @@ adm_main() {
     args=( "${_args[@]:1}" )
 
     adm_extract_setup_paths "${args[@]}"
-    setups=( "${ret[@]}" )
+    args=( "${ret[@]}" )
 
     adm_init
 
     case $command in
-        install) adm_install_setup "${setups[@]}" ;;
-        remove) adm_remove_setups ;;
-        profile) adm__run_function "st_profile" "${setups[@]}" ;;
-        rc) adm__run_function "st_rc" "${setups[@]}" ;;
-        link) adm_link_setup "${setups[@]}" ;;
-        pkgs) adm_install_pkgs "${setups[@]}" ;;
+        install) adm_install_setup "${args[@]}" ;;
+        link) adm_link_setup "${args[@]}" ;;
+        list) adm_list "${args[@]}" ;;
         noop) return 0 ;; # testing purposes
+        pkgs) adm_install_pkgs "${args[@]}" ;;
+        profile) adm__run_function "st_profile" "${args[@]}" ;;
+        rc) adm__run_function "st_rc" "${args[@]}" ;;
+        remove) adm_remove_setups ;;
         *) error "Invalid commands: $command" ; return 1 ;;
     esac
 
