@@ -1,5 +1,8 @@
 # Installation
 1) Dowload and save the repository.
+```bash
+git clone --recursive https://github.com/Alexandre-Silva/ADM.git
+```
 
 2) Add the following to your .profile or .zprofile
 ```bash
