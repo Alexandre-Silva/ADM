@@ -29,6 +29,7 @@ __setup() {
     cat <<EOF > "$TEST_DIR/test.setup.sh"
 packages=( pm:fortune-mod )
 a_function() { echo 'run'; }
+echo_file() { echo $ADM_FILE; }
 EOF
     export TEST_SETUP="$TEST_DIR/test.setup.sh"
 
@@ -118,6 +119,15 @@ describe "test adm.sh internals"
 
         assert equal "$?" "0"
         assert equal "$out" "run"
+    end
+
+    it "passes correct helpers vars"
+        __setup
+
+        out=$(adm__run_function echo_file "$TEST_SETUP" )
+
+        assert equal "$?" "0"
+        assert equal "$out" "$TEST_SETUP"
     end
 end
 

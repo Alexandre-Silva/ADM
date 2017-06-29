@@ -54,7 +54,6 @@ adm_install_setup() {
         fi
     done
 
-
     adm_install_pkgs "${setups[@]}" || return 1
 
     # prepare temporary dirs
@@ -65,9 +64,9 @@ adm_install_setup() {
     # execute all setups st_install
     for setup in "${setups[@]}"; do
         # create temporary dir for the setup file
-        local setup_name="$(basename $setup)"
+        local setup_name="$(basename "${setup}")"
         setup_name="${setup_name%.setup.sh}"
-        local tmp_dir="$(mktemp --tmpdir=$ADM_INSTALL_DIR --directory $setup_name-$template-XXXXX)"
+        local tmp_dir="$(mktemp --tmpdir="${ADM_INSTALL_DIR}" --directory "${setup}-${template}"-XXXXX)"
         builtin cd "$tmp_dir"
 
         adm__run_function "st_install" "$setup"
@@ -303,6 +302,7 @@ adm__source_safe() {
     local setup="$1"
 
     adm__clean_setup_env
+    adm__helpers "${setup}"
 
     [[ -n "${ZSH_VERSION:-}" ]] && emulate zsh
     source "$setup"
@@ -315,6 +315,25 @@ adm__clean_setup_env() {
 
     local functions=( "st_install" "st_profile" "st_rc")
     btr_unset_f "${functions[@]}"
+}
+
+# Setups a few helper vars and funcs to facilitate setup.sh files
+#
+# Vars:
+# - ADM_FILE: The file path of the setup file
+# - ADM_DIR: The directory path  of the dir contating the setup.sh file
+#
+# Funcs:
+# - n/a
+adm__helpers() {
+    local setup="$1"
+
+    ADM_FILE="$(realpath "${setup}")"
+    ADM_DIR="$(dirname "${ADM_FILE}")"
+}
+
+adm__helpers_clean() {
+    btr_unset ADM_FILE ADM_DIR
 }
 
 # Calls btr_unset and btr_unset_f on the values marked to be unset (TO_BE_UNSET and TO_BE_UNSET_f)
