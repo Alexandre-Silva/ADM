@@ -22,7 +22,7 @@ old_env_f=$(mktemp)
 # store func names
 typeset -f | awk '/ \(\) {?$/ && !/^main / {print $1}' >$old_env_f
 
-dynamically adds functions of name 'adm_*' to TO_BE_UNSET_f
+# dynamically adds functions of name 'adm_*' to TO_BE_UNSET_f
 while IFS='' read -r func_name || [[ -n "$var_name" ]]; do
     if [[ "$func_name" =~ ^adm_.* ]]; then
         TO_BE_UNSET_f+=( "$func_name" )
