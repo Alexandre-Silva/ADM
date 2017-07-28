@@ -66,7 +66,10 @@ adm_install_setup() {
         # create temporary dir for the setup file
         local setup_name="$(basename "${setup}")"
         setup_name="${setup_name%.setup.sh}"
-        local tmp_dir="$(mktemp --tmpdir="${ADM_INSTALL_DIR}" --directory "${setup}-${template}"-XXXXX)"
+        local tmp_dir="$(mktemp \
+                            --tmpdir="${ADM_INSTALL_DIR}" \
+                            --directory \
+                            "${setup_name}-${template}"-XXXXX)"
         builtin cd "$tmp_dir"
 
         adm__run_function "st_install" "$setup"
