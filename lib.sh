@@ -41,7 +41,7 @@ function is_function() {
     local func="$1"
 
     if [ -n "$ZSH_VERSION" ]; then
-        if [ "$(type -w $func | cut -d ' ' -f 2)" = function ] ; then
+        if [[ "$(type -w $func)" = *function ]] ; then
             return 0
         fi
 
