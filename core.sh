@@ -237,10 +237,12 @@ adm_main() {
         profile) adm__run_function "st_profile" "${args[@]}" ;;
         rc) adm__run_function "st_rc" "${args[@]}" ;;
         remove) adm_remove_setups ;;
+        help) ;; # do nothing for now
         *) error "Invalid commands: $command" ; return 1 ;;
     esac
 
     adm__clean_setup_env
+    adm__mark_functions
     adm__unset_marked
 
     return 0
@@ -335,8 +337,25 @@ adm__helpers() {
     ADM_DIR="$(dirname "${ADM_FILE}")"
 }
 
-adm__helpers_clean() {
-    btr_unset ADM_FILE ADM_DIR
+# Mark helpers vars to be unset
+TO_BE_UNSET+=( ADM_FILE ADM_DIR )
+
+# Mark funcs defined inside ADM to be deleted. It works by searching for any
+# function which matches `adm_*`
+adm__mark_functions() {
+    old_env_f=$(mktemp)
+
+    # store func names
+    typeset -f | awk '/ \(\) {?$/ && !/^main / {print $1}' >$old_env_f
+
+    # dynamically adds functions of name 'adm_*' to TO_BE_UNSET_f
+    while IFS='' read -r func_name || [[ -n "$var_name" ]]; do
+        if [[ "$func_name" =~ ^adm_.* ]]; then
+            TO_BE_UNSET_f+=( "$func_name" )
+        fi
+    done < <(cat "${old_env_f}")
+
+    rm -f $old_env_f
 }
 
 # Calls btr_unset and btr_unset_f on the values marked to be unset (TO_BE_UNSET and TO_BE_UNSET_f)
