@@ -9,10 +9,11 @@
 ####
 ADM_OPTSPEC_DEFAULT=":h-:"
 
+TO_BE_UNSET+=( ADM_OPTSPEC_DEFAULT )
+
 ####
 # Functions
 ####
-
 
 adm_opts_init() {
     # clean ADM_OPT*
@@ -24,6 +25,8 @@ adm_opts_init() {
     declare -gA ADM_OPT_SHORT # Map of short options 'name's -> long 'name's (the key in ADM_OPT)
     declare -gA ADM_OPT_PARSE # Map of longopt 'name' -> parsing 'function' for said option
 }
+
+TO_BE_UNSET+=( ADM_OPTSPEC ADM_OPT ADM_OPT_SHORT ADM_OPT_PARSE )
 
 
 # Adds an option which can be parsed by adm_parse_opts.

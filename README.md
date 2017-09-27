@@ -27,5 +27,13 @@ This files are all source into the current shell. Thefore, it's a good idea to
 use some helper functions to prevent polluting the shell's environment.
 TODO: put example
 
+## Configurations
+
+### Envrionment vars
+
+- ADM\_INSTALL\_DIR: The folder in which setup.sh files are given to create
+  temporary files and alike. Note that each setup file is given its own dir,
+  e.g. foo.setup.sh uses $ADM\_INSTALL\_DIR/foo/
+
 # Important notes
 The prefix ```'adm_*'``` is reserved for internal ADM functions. However you will note that no function is exported to the shell environment even tought $ADM/adm.sh is sourced. This is because internally, ADM dinamically unsets *all* functions with that prefix.
