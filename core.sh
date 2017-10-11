@@ -183,7 +183,13 @@ adm_list() {
 
     for arg in "${args[@]}"; do
         while IFS= read -r -d '' file; do
-            printf "%s${COL_BLUE}/%s${COL_RESET}\n" "$(dirname "$file")" "$(basename "$file")"
+            local fname="$(basename "$file")"
+
+            if [[ "${fname}" == 'setup.sh' ]]; then
+                fname="$(basename "${fname}")/${fname}"
+            fi
+
+            printf "${COL_BLUE}%25s${COL_RESET} %s\n" "${fname}" "${file}"
         done < <(find "${arg}" -regextype sed -regex '\(.*.setup.sh\)\|\(setup.sh\)' -type f -print0)
     done
 
