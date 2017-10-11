@@ -195,6 +195,11 @@ adm_list() {
 
 }
 
+# Displays the help page for ADM
+adm_help() {
+    adm_opts_help_all
+}
+
 adm_extract_setup_paths() {
     local setups=()
     for setup in "$@"; do
@@ -229,22 +234,27 @@ adm_main() {
     local command="${_args[0]}"
     args=( "${_args[@]:1}" )
 
+    if [[ -n "${ADM_OPT[help]}" ]]; then
+        adm_help
+        return 0
+    fi
+
     adm_extract_setup_paths "${args[@]}"
     args=( "${ret[@]}" )
 
     adm_init
 
     case $command in
-        install) adm_install_setup "${args[@]}" ;;
-        link) adm_link_setup "${args[@]}" ;;
-        list) adm_list "${args[@]}" ;;
-        noop) return 0 ;; # testing purposes
-        pkgs) adm_install_pkgs "${args[@]}" ;;
-        profile) adm__run_function "st_profile" "${args[@]}" ;;
-        rc) adm__run_function "st_rc" "${args[@]}" ;;
-        remove) adm_remove_setups ;;
-        help) ;; # do nothing for now
-        *) error "Invalid commands: $command" ; return 1 ;;
+        install)  adm_install_setup  "${args[@]}"                ;;
+        link)     adm_link_setup     "${args[@]}"                ;;
+        list)     adm_list           "${args[@]}"                ;;
+        noop)     return             0                           ;; # testing  purposes
+        pkgs)     adm_install_pkgs   "${args[@]}"                ;;
+        profile)  adm__run_function  "st_profile"  "${args[@]}"  ;;
+        rc)       adm__run_function  "st_rc"       "${args[@]}"  ;;
+        remove)   adm_remove_setups                              ;;
+        help)     adm_help                                       ;;
+        *)        error              "Invalid commands: $command" ; return 1 ;;
     esac
 
     adm__clean_setup_env

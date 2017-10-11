@@ -21,34 +21,53 @@ adm_opts_init() {
 
 
     ADM_OPTSPEC="${ADM_OPTSPEC_DEFAULT}"
-    declare -gA ADM_OPT # Map of option <name> -> <value>
+    declare -gA ADM_OPT       # Map of option <name> -> <value>
     declare -gA ADM_OPT_SHORT # Map of short options 'name's -> long 'name's (the key in ADM_OPT)
+    declare -gA ADM_OPT_L2S   # Map of longopt -> shortopt name
     declare -gA ADM_OPT_PARSE # Map of longopt 'name' -> parsing 'function' for said option
+    declare -gA ADM_OPT_HELP  # Map of longopt 'name' -> help string
 }
 
-TO_BE_UNSET+=( ADM_OPTSPEC ADM_OPT ADM_OPT_SHORT ADM_OPT_PARSE )
+TO_BE_UNSET+=( ADM_OPTSPEC ADM_OPT ADM_OPT_SHORT ADM_OPT_L2S ADM_OPT_PARSE ADM_OPT_HELP)
 
 
 # Adds an option which can be parsed by adm_parse_opts.
 #
-# @Param $1:name The name used to identify the option and pass to adm.sh.
-#                e.g. verbose is --verbose. The name must not have spaces.
-# @Param $2:short_name The short version of the option. Pass '' to ignore this.
-# @Param $3:default The initial value for the option in ADM_OPT[${name}]. Pass '' to ignore this.
-# @Param $4:parser The function to use when the option is passed to adm.sh. See the section about parsers.
 # @Returns: 0 on success -1 if an error is encountered
 adm_opts_add() {
-    local name="$1"
-    local short_name="$2"
-    local default="$3"
-    local parser="$4"
+    local name="$1"       # The name used to identify the option and pass to adm.sh.
+                          #   e.g. verbose is --verbose. The name must not have spaces.
+    local short_name="$2" # The short version of the option. Pass '' to ignore this.
+    local default="$3"    # Initial value for the option in. Pass '' to ignore this.
+    local parser="$4"     # Function to use when the option is detected.
+                          #   See the section about parsers for more details.
+    local desc="$5"       # Help description of the option. Pass '' to ignore this
 
     ADM_OPT[${name}]="${default}"
     if [[ -n "${short_name}" ]]; then
         ADM_OPTSPEC+="${short_name}"
         ADM_OPT_SHORT[${short_name}]="${name}"
+        ADM_OPT_L2S[${name}]="${short_name}"
     fi
     ADM_OPT_PARSE[${name}]="${parser}"
+
+    [[ -n "${desc}" ]] && adm_opts_add_help "${name}" "${desc}"
+}
+
+# Adds and help description of an option
+#
+# @Returns: 0 on success -1 if an error is encountered
+adm_opts_add_help() {
+    local name="$1" # Name of the option
+    local desc="$2" # Description of the option
+
+    # see https://stackoverflow.com/questions/13219634/easiest-way-to-check-for-an-index-or-a-key-in-an-array
+    if [ ${ADM_OPT[${name}]+abc} ]; then
+        ADM_OPT_HELP[${name}]="${desc}"
+    else
+        error "Failed to add description to non existent option:" "$name"
+        return 1
+    fi
 }
 
 
@@ -56,16 +75,43 @@ adm_opts_add() {
 BOLD='\e[1;31m'         # Bold Red
 REV='\e[1;32m'       # Bold Green
 
-#Help function
-function adm_help {
-    info "Basic usage:${OFF} ${BOLD}adm -d helloworld"
-    info "The following switches are recognized. $OFF "
-    info "-p ${OFF}  --Sets the environment to use for installing python ${OFF}. Default is ${BOLD} /usr/bin"
-    info "-d ${OFF}  --Sets the directory whose virtualenv is to be setup. Default is ${BOLD} local folder (.)"
-    info "-v ${OFF}  --Sets the python version that you want to install. Default is ${BOLD} 2.7"
-    info "-h${OFF}  --Displays this help message. No further functions are performed."
-    info "Example: ${BOLD}adm -d helloworld -p /opt/py27env/bin -v 2.7 ${OFF}"
-    exit 1
+
+# Prints all help descriptions of all configured options
+adm_opts_help_all() {
+    if [[ -n $BASH_VERSION ]]; then
+        for optname in "${!ADM_OPT_HELP[@]}"; do
+            echo
+            echo $optname
+            adm_opts_help "${optname}"
+        done
+
+    elif [[ -n $ZSH_VERSION ]]; then
+        emulate zsh
+        for optname in "${(@k)ADM_OPT_HELP}"; do
+            adm_opts_help "${optname}"
+        done
+        emulate bash
+    fi
+}
+
+# Prints the help description of an option
+#
+# @param $1:optname The name of the option to print
+adm_opts_help() {
+    local optname="$1"
+    local optshort=""
+
+    if [[ -n "${ADM_OPT_L2S[${optname}]}" ]]; then
+        optshort="${ADM_OPT_L2S[${optname}]}"
+        printf "${COL_BLUE}  -%s, --%s\n${COL_RESET}" "${optshort}" "${optname}"
+    else
+        printf "${COL_BLUE}  --%s\n${COL_RESET}" "${optname}"
+    fi
+
+
+    if [[ -n "${ADM_OPT_HELP[${optname}]}" ]]; then
+        echo "${ADM_OPT_HELP[${optname}]}" | fmt | sed 's/^/    /'
+    fi
 }
 
 adm_opts_parse2() {
@@ -117,7 +163,9 @@ adm_opts_parse() {
 
 adm_opts_build_parser() {
     ### Verbose opt init
-    adm_opts_add verbose v "" adm_opts_set_true
+    #e.g.:       <longname> <shortname> <default val> <parser fn name> <help description>
+
+    adm_opts_add verbose   v "" adm_opts_set_true "explain what is being done"
     adm_opts_add recursive r "" adm_opts_set_true
 }
 
