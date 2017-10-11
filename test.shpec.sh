@@ -324,9 +324,9 @@ end
 test_opts_init () {
     adm_opts_init
 
-    adm_opts_add alpha a f adm_opts_set_true
+    adm_opts_add alpha a f adm_opts_set_true "alpha desc"
     adm_opts_add beta b f adm_opts_set_true
-    adm_opts_add gamma g f adm_opts_set_true
+    adm_opts_add gamma g f adm_opts_set_true "beta desc"
 }
 
 test_opts_assert () {
@@ -390,5 +390,12 @@ describe "Options parsing"
 
         adm_opts_parse -a a -a b -a c
         assert equal $? 0
+    end
+
+    it "Prints help descriptions"
+        test_opts_init
+
+        assert equal "$(adm_opts_help alpha)" "  -a, --alpha\n    alpha desc"
+        assert equal "$(adm_opts_help beta)" "  -b, --beta"
     end
 end

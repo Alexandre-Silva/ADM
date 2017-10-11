@@ -1,3 +1,3 @@
 #!/bin/bash
 
-shpec/bin/shpec ./test.shpec.sh
+NO_COLOR=t shpec/bin/shpec ./test.shpec.sh
