@@ -80,15 +80,15 @@ REV='\e[1;32m'       # Bold Green
 adm_opts_help_all() {
     if [[ -n $BASH_VERSION ]]; then
         for optname in "${!ADM_OPT_HELP[@]}"; do
-            echo
-            echo $optname
             adm_opts_help "${optname}"
+            echo
         done
 
     elif [[ -n $ZSH_VERSION ]]; then
         emulate zsh
         for optname in "${(@k)ADM_OPT_HELP}"; do
             adm_opts_help "${optname}"
+            echo
         done
         emulate bash
     fi
@@ -166,7 +166,7 @@ adm_opts_build_parser() {
     #e.g.:       <longname> <shortname> <default val> <parser fn name> <help description>
 
     adm_opts_add verbose   v "" adm_opts_set_true "explain what is being done"
-    adm_opts_add recursive r "" adm_opts_set_true
+    adm_opts_add recursive r "" adm_opts_set_true "recursively searches given directories"
 }
 
 ## adm_parse_*
