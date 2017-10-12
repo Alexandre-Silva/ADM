@@ -241,8 +241,8 @@ adm_main() {
 
     adm_init
 
-    local command="${_args[0]}"
-    args=( "${_args[@]:1}" )
+    local command="${args[0]}"
+    args=( "${args[@]:1}" )
     adm_extract_setup_paths "${args[@]}" && args=( "${ret[@]}" )
 
     case $command in
