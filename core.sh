@@ -197,6 +197,15 @@ adm_list() {
 
 # Displays the help page for ADM
 adm_help() {
+    echo -e "${COL_BLUE}NAME${COL_RESET}"
+    echo -e "  adm - Alex Dotfile Manager"
+    echo
+
+    echo -e "${COL_BLUE}DESCRIPTION${COL_RESET}"
+    echo -e "  TODO"
+    echo
+
+    echo -e "${COL_BLUE}OPTIONS${COL_RESET}"
     adm_opts_help_all
 }
 
