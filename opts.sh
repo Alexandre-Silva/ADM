@@ -149,6 +149,8 @@ adm_opts_parse2() {
 
 adm_opts_parse() {
     local args=( "$@" )
+    ret=() # Returns all arguments which are not options
+
     # In case you wanted to check what variables were passed
     # echo "flags = $*"
 
@@ -156,6 +158,8 @@ adm_opts_parse() {
     for arg in "${args[@]}"; do
         if [[ "${arg}" =~ ^-.*$ ]]; then
             opts+=( "${arg}" )
+        else
+            ret+=( "${arg}" )
         fi
     done
     adm_opts_parse2 "${opts[@]}"

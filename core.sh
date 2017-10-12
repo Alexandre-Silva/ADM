@@ -229,29 +229,21 @@ adm_extract_setup_paths() {
 adm_main() {
     local args=( "$@" )
 
+    # Handle options
     adm_opts_init
     adm_opts_build_parser
-    adm_opts_parse "${args[@]}"
-
-    # remove options
-    local _args=()
-    for arg in "${args[@]}"; do
-        if [[ "${arg}" != -* ]]; then
-            _args+=( "${arg}" )
-        fi
-    done
-    local command="${_args[0]}"
-    args=( "${_args[@]:1}" )
+    adm_opts_parse "${args[@]}" && args=( "${ret[@]}" ) # adm_opts_parse places in `ret` the arguments
 
     if [[ -n "${ADM_OPT[help]}" ]]; then
         adm_help
         return 0
     fi
 
-    adm_extract_setup_paths "${args[@]}"
-    args=( "${ret[@]}" )
-
     adm_init
+
+    local command="${_args[0]}"
+    args=( "${_args[@]:1}" )
+    adm_extract_setup_paths "${args[@]}" && args=( "${ret[@]}" )
 
     case $command in
         install)  adm_install_setup  "${args[@]}"                ;;
