@@ -1,9 +1,10 @@
 #!/usr/bin/bash
 
-# This files handles the loading and use of various package maneger wrappers in pm.d directory.
+# This files handles the loading and use of various package manager wrappers in
+# pm.d directory.
 #
 # The initialization works by sourcing every .sh in pm.d. Each file there should
-# regitar one or more prefixed to a function defined in the file. That function
+# register one or more prefixed to a function defined in the file. That function
 # is the wrapper to the package manager in question.
 #
 # Once all package mangers are loaded adm_pm_install (and family) can be called
@@ -28,7 +29,7 @@ adm_pm_register() {
     # the prefix that associates a package to a particular package manager
     # E.g.: `pm` is the system's package manager which in ArchLinux is `pacman`
     local sufix="$1"
-    # The func to call for _packages of a certain manager
+    # The func to call for packages of a certain manager
     local func="$2"
 
     [[ "${ADM_OPT[verbose]}" == t ]] && running "Binding $sufix to $func"
@@ -46,17 +47,17 @@ adm_pm_register() {
 # Installs the packages passed as arguments by calling the appropride package manager.
 # @param @:_packages Each package must contain the prefix which maps to a pm.
 adm_pm_install() {
-    local _packages=( "$@" )
+    local packages=( "$@" )
 
-    adm_pm__call_func "install" "${_packages[@]}"
+    adm_pm__call_func "install" "${packages[@]}"
     return $?
 }
 
-# Like `pm_install` but removes instead of installing the _packages
+# Like `pm_install` but removes instead of installing the packages
 adm_pm_remove() {
-    local _packages=( "$@" )
+    local packages=( "$@" )
 
-    adm_pm__call_func "remove" "${_packages}"
+    adm_pm__call_func "remove" "${packages}"
     return $?
 
 }
@@ -73,23 +74,23 @@ adm_pm__call_func() {
     local action="${args[0]}"
     local raw_packages=( "${args[@]:1}" )
 
-    local -A _packages
+    local -A packages
     local packages_suffixes=()
 
-    # aggregates packages by suffix in `_packages`
+    # aggregates packages by suffix in `packages`
     for pckg in "${raw_packages[@]}" ; do
         [ -z "$pckg" ] && continue
 
         local suffix="${pckg%%:*}" # removes the suffix (excluding the `:`)
 
         # Since bash does not support arrays of arrays we use a really long string
-        # containning all _packages separated by spaces
-        if [[ -z "${_packages[$suffix]}" ]]; then
-            _packages[$suffix]="${pckg#*:}"
+        # containning all packages separated by spaces
+        if [[ -z "${packages[$suffix]}" ]]; then
+            packages[$suffix]="${pckg#*:}"
             packages_suffixes+=( "${suffix}" )
         else
-            # adds `pckg` name to `_packages` to install
-            _packages[$suffix]+=" ${pckg#*:}"
+            # adds `pckg` name to `packages` to install
+            packages[$suffix]+=" ${pckg#*:}"
         fi
     done
 
@@ -100,9 +101,9 @@ adm_pm__call_func() {
     for suffix in "${packages_suffixes[@]}"; do
         if [ -n "${package_manager[$suffix]}" ]; then
 
-            # convert long string to actual array of _packages
-            # note the lack of "..." around _packages[$suffix]
-            local packages_array=( ${_packages[$suffix]} )
+            # convert long string to actual array of packages
+            # note the lack of "..." around packages[$suffix]
+            local packages_array=( ${packages[$suffix]} )
             "${package_manager[$suffix]}" "$action" "${packages_array[@]}"
 
             local ret_code=$?
