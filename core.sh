@@ -173,6 +173,8 @@ adm_link_setup() {
     local setups=( "$@" )
     ret=()
 
+    adm_resolve_depends "${setups[@]}" && setups=( "${ret[@]}" ) || return 1
+
     for setup in "${setups[@]}"; do
         adm__extract_var "$setup" "links" || return 1
         local links=( "${ret[@]}" )
