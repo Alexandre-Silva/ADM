@@ -10,7 +10,7 @@ export ADM=/path/to/ADM
 function adm() { source $ADM/adm.sh "$@" }
 ```
 
-Note that 'adm.sh' is sourced and not executed in a subshell. This is necessary since otherwise any configuration (aliases, environment variables, functions, etc) will not be exported in to the current shell.
+Note that 'adm.sh' is sourced and not executed in a subshell. This is necessary since otherwise most configurations (aliases, environment variables, functions, etc) would not be exported to the current shell.
 
 # Usage
 
