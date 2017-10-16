@@ -27,6 +27,10 @@ This files are all source into the current shell. Thefore, it's a good idea to
 use some helper functions to prevent polluting the shell's environment.
 TODO: put example
 
+### packages
+
+[Relevant XKCD](https://xkcd.com/1654/)
+
 ## Configurations
 
 ### Envrionment vars
