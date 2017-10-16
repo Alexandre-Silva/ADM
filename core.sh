@@ -42,6 +42,36 @@ adm_find_setups() {
 }
 
 
+adm_resolve_depends_rec(){
+    local args=("$@")
+    local depf="${args[0]}"
+    local setups=("${args[@]:1}")
+
+    local i d
+    for s in "${setups[@]}"; do
+        echo -e "${s} ${s}" >>"${depf}"
+        adm__extract_var "${s}" "depends"
+        for d in "${ret[@]}"; do
+            d="$(realpath "${d}")"
+            echo -e "${d} ${s}" >>"${depf}"
+
+            adm_resolve_depends_rec "${depf}" "${d}"
+        done
+    done
+}
+
+adm_resolve_depends() {
+    local setups=("$@")
+
+    local depf="/tmp/ADM/depends.tsort"
+    echo -e "" >"${depf}"
+
+    adm_resolve_depends_rec "${depf}" "${setups[@]}"
+
+    ret=( $(tsort "${depf}") )
+}
+
+
 # installs the provided `setups` files
 adm_install_setup() {
     local setups=( "$@" )
@@ -53,6 +83,8 @@ adm_install_setup() {
             return 1
         fi
     done
+
+    adm_resolve_depends "${setups[@]}" && setups=( "${ret[@]}" ) || return 1
 
     adm_install_pkgs "${setups[@]}" || return 1
 

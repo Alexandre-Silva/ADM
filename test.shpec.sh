@@ -13,11 +13,16 @@ fi
 # However we are just testing
 source "$ADM/adm.sh" noop
 
-
-__setup() {
+__setup_base() {
     export TEST_DIR="/tmp/ADM-TEST-DIR"
     [[ -e "$TEST_DIR" ]] && rm -rf "$TEST_DIR"
     mkdir "$TEST_DIR"
+
+    adm_pm_reset
+}
+
+__setup() {
+    __setup_base
 
     ln -s "/this/path/does/not/exist" "$TEST_DIR/broken-link"
 
@@ -40,8 +45,12 @@ EOF
     touch "$TEST_DIR/A/not_setup.sh"
     mkdir "$TEST_DIR/B"
     touch "$TEST_DIR/B/some.setup.sh"
+}
 
-    adm_pm_reset
+__setup_deps() {
+    __setup_base
+
+    cp --recursive tests/depends/* "${TEST_DIR}"
 }
 
 describe "test adm.sh internals"
@@ -226,7 +235,7 @@ describe "package managers wrappers"
         end
 
         it "install test packages (multi suffix)"
-        __setup
+            __setup
             local calledA=0
             pm_suffixA() {
                 local args=( "$@" )
@@ -258,6 +267,18 @@ describe "package managers wrappers"
             assert equal "$?" "0"
             assert equal "$calledA" "1"
             assert equal "$calledB" "1"
+        end
+
+        it "handles dependencies"
+            __setup_deps
+
+            export DEP_COUNTER=1 # used for tracking call order
+
+            adm_install_setup "${TEST_DIR}/a.setup.sh"
+
+            assert equal "$A" 3
+            assert equal "$B" 2
+            assert equal "$C" 1
         end
     end
 
