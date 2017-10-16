@@ -343,7 +343,7 @@ adm__extract_var() {
 
     # is `name` defined ?
     if $(eval '[[ -z ${'"$name"'+x} ]]'); then
-        info 'Var '"$name"' unset or empty in '"$setup"
+        [[ "${ADM_OPT[verbose]}" == t ]] && info 'Var '"$name"' unset or empty in '"$setup"
         return 0
     fi
 
