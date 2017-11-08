@@ -3,8 +3,8 @@
 ####
 # CONFIGS and VARS
 ####
-DOTFILES=${DOTFILES:-$(pwd)}
-ADM_INSTALL_DIR=${ADM_INSTALL_DIR:-"/tmp/ADM"}
+DOTFILES=${DOTFILES:-$(pwd)}                 # default directory were dotfiles are located
+ADM_TMP_DIR=${ADM_TMP_DIR:-"/tmp/ADM"${UID}} # were temporary adm files are stored (created in adm_init)
 
 ret=()
 
@@ -13,6 +13,7 @@ ret=()
 ####
 
 adm_init() {
+    mkdir --parent "${ADM_TMP_DIR}"
     adm_pm_init
 }
 
@@ -63,7 +64,7 @@ adm_resolve_depends_rec(){
 adm_resolve_depends() {
     local setups=("$@")
 
-    local depf="/tmp/ADM/depends.tsort"
+    local depf="${ADM_TMP_DIR}/depends.tsort"
     echo -e "" >"${depf}"
 
     adm_resolve_depends_rec "${depf}" "${setups[@]}"
@@ -90,7 +91,7 @@ adm_install_setup() {
 
     # prepare temporary dirs
     local curr_dir=$(pwd)
-    mkdir --parents --verbose "$ADM_INSTALL_DIR"
+    mkdir --parents --verbose "$ADM_TMP_DIR"
     local template="$(date +"%S:%M:%H_%d-%m-%y")"
 
     # execute all setups st_install
@@ -99,7 +100,7 @@ adm_install_setup() {
         local setup_name="$(basename "${setup}")"
         setup_name="${setup_name%.setup.sh}"
         local tmp_dir="$(mktemp \
-                            --tmpdir="${ADM_INSTALL_DIR}" \
+                            --tmpdir="${ADM_TMP_DIR}" \
                             --directory \
                             "${setup_name}-${template}"-XXXXX)"
         builtin cd "$tmp_dir"
