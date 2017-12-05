@@ -1,14 +1,50 @@
 # Introduction
+The core idea of ADM is the setup.sh file were all information about one *thing*
+is located. This *thing* can be any unit of configuration. For example, a
+configuration of emacs can have several .el (i.e. configuration) files, shell
+aliases for launching it, the necessary packages to install emacs and other
+tools such as jedi or JSLint. Additionally, some specific text font could be
+used which is contained in some other setup.sh. To express all this, one would
+only need to create a setup.sh similar to the example below.
+
+```bash
+# emacs.setup.sh
+depends=( path/to/font.setup.sh )
+packages=( apt:emacs apt:python-jedi )
+links=( ~/dotfiles/emacs.el ~/.emacs.el )
+st_rc() {
+  alias ec='emacs'            # launch GUI
+  alias et='emacs --terminal' # launch in terminal
+}
+```
+
+// single tool to do it
+
+// all bash
+
+After some research into other tools to perform dotfile management, I found that
+these topically only handle soft-link management. While in the previous example
+**all** configurations are located in a single place.
 
 # Quick-Start
 
 # Installation
-1) Download and save the repository.
+1a - Download and save the repository.
 ```bash
 git clone --recursive https://github.com/Alexandre-Silva/ADM.git
 ```
+1b - Or as submodule inside a git repository.
 
-2) Add the following to your .profile or .zprofile
+```bash
+git submodule add https://github.com/Alexandre-Silva/ADM.git
+```
+Then, to update other machines.
+```bash
+git submodule sync --recursive
+git submodule update --recursive --init
+```
+
+2 - Add the following to your .profile or .zprofile
 ```bash
 export ADM=/path/to/ADM
 function adm() { source $ADM/adm.sh "$@" }
