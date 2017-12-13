@@ -51,9 +51,9 @@ export ADM=/path/to/ADM
 function adm() { source $ADM/adm.sh "$@" }
 ```
 
-Note that 'adm.sh' is sourced and not executed in a sub-shell. This is necessary
-since otherwise most configurations (aliases, environment variables, functions,
-etc) would not be exported to the current shell.
+Note that 'adm.sh' must be sourced and not executed in a sub-shell. Otherwise,
+most configurations (aliases, environment variables, functions, etc) would not
+be exported to the current shell.
 
 # Requirements
 ADM is designed to work on both Bash and ZSH. The required are, respectively:
