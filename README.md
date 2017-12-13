@@ -83,10 +83,33 @@ helper var can be, well, helpful.
 [Relevant XKCD](https://xkcd.com/1654/)
 
 ### links
-TODO
+The *links* var specifies the soft-links to be created. Each link is specified
+using a pair of paths (like for *ln*), the first if the origninal file and the
+second the path were to create the softlink.
+
+```bash
+links=(
+  ~/dotfiles/file1 ~/.file1
+  ~/dotfiles/file2 ~/.file2
+  ~/dotfiles/file3 ~/.file3
+  # <original file>  <path to softlink>
+)
+```
+
+Don't forget that this is a bash/zsh array so special care around special
+characters and spaces should be taken. Furthermore, helpers variables and other
+bash/zsh logic can be used. For example:
+
+```bash
+links=()
+for file in some/path/*.wildcard; do
+    links+=( "$file" "other/path/$(basename "$file")" )
+done
+```
 
 ### install()
-If a function named *install* is present it's when the adm command of the same is called.
+If a function named *install* is present it's when the adm command of the same
+is called.
 
 ### st_profile(), st_rc()
 Functions named *st\_profile*, and *st\_rc* are executed when the adm commands profile and rc, respectively.
