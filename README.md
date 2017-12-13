@@ -27,6 +27,7 @@ these topically only handle soft-link management. While in the previous example
 **all** configurations are located in a single place.
 
 # Quick-Start
+**TODO**
 
 # Installation
 1a - Download and save the repository.
@@ -50,7 +51,9 @@ export ADM=/path/to/ADM
 function adm() { source $ADM/adm.sh "$@" }
 ```
 
-Note that 'adm.sh' is sourced and not executed in a sub-shell. This is necessary since otherwise most configurations (aliases, environment variables, functions, etc) would not be exported to the current shell.
+Note that 'adm.sh' is sourced and not executed in a sub-shell. This is necessary
+since otherwise most configurations (aliases, environment variables, functions,
+etc) would not be exported to the current shell.
 
 # Requirements
 ADM is designed to work on both Bash and ZSH. The required are, respectively:
@@ -77,10 +80,40 @@ TODO: put example
 ### depends
 This var should contain a list of other setup.sh which must be processed. The
 dependencies must be specified using absolute paths. Note that the ADM_DIR
-helper var can be, well, helpful.
+helper variable can be, well, helpful.
 
 ### packages
-[Relevant XKCD](https://xkcd.com/1654/)
+The *packages* variable contains a list of packages to install. These can be
+packages of any supported package manager (pacman, pip, npm, etc). As shown in
+the example below, the variable is a bash array of packages names. ([Relevant
+XKCD](https://xkcd.com/1654/))
+
+Each package is specified in format \<environment\>:\<package name\>. The
+environment is the space were the package name is to searched and not the actual
+tool used to install the packege. For example, javascript packages can be
+install using both *npm* or *yarn*. However, both tools share the same packages.
+
+Note that for Arch Linux the tools used for installing AUR packages can also be
+used to install packges from the normal arch repositories. But for clarity
+reasons, the two separate environment prefixes are used, respectively, *pm:* and
+*aur:*.
+
+```bash
+packages=(
+    "pm:cmake"                # for ycmd
+    "aur:vim-youcompleteme-git"
+
+    # realgud-package
+    "pip:trepan3k"            # better python debugger
+    "pip:xdis"                # undeclared dependency for trepan3k
+
+    # javascript
+    "npm:tern"                # auto-complete
+    "npm:js-beautify"         # code formatter
+    "npm:eslint"              # linter
+)
+```
+
 
 ### links
 The *links* var specifies the soft-links to be created. Each link is specified
