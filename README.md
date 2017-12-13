@@ -129,9 +129,9 @@ links=(
 )
 ```
 
-Don't forget that this is a bash/zsh array so special care around special
-characters and spaces should be taken. Furthermore, helpers variables and other
-bash/zsh logic can be used. For example:
+Don't forget that this is a bash/zsh array. Therefore, special care around
+special characters and spaces should be taken. Furthermore, helper variables and
+other bash/zsh logic can be used. For example:
 
 ```bash
 links=()
@@ -141,8 +141,8 @@ done
 ```
 
 ### install()
-If a function named *install* is present it's when the adm command of the same
-is called.
+If a function named *install* is present it's executed when the adm command of
+the same is called.
 
 ### st_profile(), st_rc()
 Functions named *st\_profile*, and *st\_rc* are executed when the adm commands profile and rc, respectively.
@@ -162,4 +162,7 @@ When writing the setup.sh, there are a few quality of life features that can be 
   e.g. foo.setup.sh uses $ADM\_INSTALL\_DIR/foo/
 
 # Important notes
-The prefix ```'adm_*'``` is reserved for internal ADM functions. However you will note that no function is exported to the shell environment even though $ADM/adm.sh is sourced. This is because internally, ADM dynamically unsets *all* functions with that prefix.
+The prefix ```'adm_*'``` is reserved for internal ADM functions. However, you
+will note that no function is exported to the shell environment even though
+$ADM/adm.sh is sourced. This is because ADM dynamically unsets **all** functions
+with that prefix.
