@@ -1,23 +1,23 @@
 version: 2
-test-matrix:
-
+jobs:
   test-bash:
     docker:
       - image: debian:stretch
     steps:
       - checkout
+      - run: git submodule sync --recursive
+      - run: git submodule update --init --recursive
       - run: ./test.sh bash
 
   test-zsh:
-    requires:
-      - build
     docker:
       - image: debian:stretch
     steps:
       - checkout
+      - run: git submodule sync --recursive
+      - run: git submodule update --init --recursive
       - run: apt install zsh
       - run: ./test.sh bash
-
 
 workflows:
   version: 2
