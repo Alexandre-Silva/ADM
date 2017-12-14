@@ -19,6 +19,11 @@ fi
 # However we are just testing
 source "$ADM/adm.sh" noop
 
+
+if [[ -n "$ZSH_VERSION" ]]; then
+    set -o ksh_arrays
+fi
+
 __setup_base() {
     export TEST_DIR="/tmp/ADM-TEST-DIR"
     [[ -e "$TEST_DIR" ]] && rm -rf "$TEST_DIR"

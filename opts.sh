@@ -85,12 +85,10 @@ adm_opts_help_all() {
         done
 
     elif [[ -n $ZSH_VERSION ]]; then
-        emulate zsh
         for optname in "${(@k)ADM_OPT_HELP}"; do
             adm_opts_help "${optname}"
             echo
         done
-        emulate bash
     fi
 }
 
@@ -144,7 +142,6 @@ adm_opts_parse2() {
 
         ${ADM_OPT_PARSE[${longopt}]} "${longopt}" "${ADM_OPT[${longopt}]}"
     done
-    return 0
 }
 
 adm_opts_parse() {
