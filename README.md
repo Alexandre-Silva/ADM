@@ -1,3 +1,5 @@
+[![CircleCI](https://circleci.com/gh/Alexandre-Silva/ADM.svg?style=svg)](https://circleci.com/gh/Alexandre-Silva/ADM)
+
 # Introduction
 
 Tipically, one wants to keep track of the configuration files of used
