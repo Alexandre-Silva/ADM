@@ -1,5 +1,11 @@
 #!/bin/bash
 
+if [[ -n $BASH_VERSION ]]; then
+    # shopt -s extglob
+    shopt -s globstar
+    # IFS="$(printf '\n\t')"   # Remove space
+fi
+
 ####
 # Imports
 ####
@@ -45,6 +51,8 @@ EOF
     touch "$TEST_DIR/A/not_setup.sh"
     mkdir "$TEST_DIR/B"
     touch "$TEST_DIR/B/some.setup.sh"
+
+    TEST_EXPECTED_SETUPS=( $TEST_DIR/**/*.setup.sh $TEST_DIR/**/setup.sh )
 }
 
 __setup_deps() {
@@ -66,12 +74,11 @@ describe "test adm.sh internals"
         __setup
         adm_find_setups "$TEST_DIR"
         setups=( "${ret[@]}" )
-        expected=("$TEST_DIR/"{A/a\ spaced\ name.setup.sh,A/setup.sh,B/some.setup.sh,setup.sh,test.setup.sh})
 
-        assert equal ${#setups[@]} ${#expected[@]}
+        assert equal ${#setups[@]} ${#TEST_EXPECTED_SETUPS[@]}
 
         for i in $(seq 0 ${#expected[@]}); do
-            assert equal "${setups[$i]}" "${expected[$i]}"
+            assert equal "${setups[$i]}" "${TEST_EXPECTED_SETUPS[$i]}"
         done
     end
 
@@ -105,12 +112,10 @@ describe "test adm.sh internals"
         adm_extract_setup_paths "$TEST_DIR"
         setups=( "${ret[@]}" )
 
-        expected=("$TEST_DIR/"{A/a\ spaced\ name.setup.sh,A/setup.sh,B/some.setup.sh,setup.sh,test.setup.sh})
-
-        assert equal ${#setups[@]} ${#expected[@]}
+        assert equal ${#setups[@]} ${#TEST_EXPECTED_SETUPS[@]}
 
         for i in $(seq 0 ${#expected[@]}); do
-            assert equal "${setups[$i]}" "${expected[$i]}"
+            assert equal "${setups[$i]}" "${TEST_EXPECTED_SETUPS[$i]}"
         done
     end
 
@@ -219,7 +224,8 @@ describe "package managers wrappers"
                 local args=( "$@" )
                 local expected=( install foo bar )
 
-                for i in {0..2}; do assert equal "${args[$i]}" "${expected[$i]}"; done
+                assert arrayeq "${args[@]}" "${expected[@]}"
+                for i in 0 1 2; do assert equal "${args[$i]}" "${expected[$i]}"; done
 
                 p_called=1
                 return 77 # random number different than 0, 1, and 127

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export SHPEC_ROOT="$PWD"
+
 echo ">> Testing in bash <<"
 NO_COLOR=t bash shpec/bin/shpec ./test.shpec.sh
 echo
