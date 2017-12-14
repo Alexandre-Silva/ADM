@@ -1,13 +1,27 @@
 version: 2
-jobs:
-  build:
+test-matrix:
+
+  test-bash:
     docker:
       - image: debian:stretch
     steps:
       - checkout
-      - run:
-          name: Greeting
-          command: echo Hello, world.
-      - run:
-          name: Print the Current Time
-          command: date
+      - run: ./test.sh bash
+
+  test-zsh:
+    requires:
+      - build
+    docker:
+      - image: debian:stretch
+    steps:
+      - checkout
+      - run: apt install zsh
+      - run: ./test.sh bash
+
+
+workflows:
+  version: 2
+  test-matrix:
+    jobs:
+      - test-bash:
+      - test-zsh:
