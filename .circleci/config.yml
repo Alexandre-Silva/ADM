@@ -15,8 +15,7 @@ jobs:
     steps:
       - checkout
       - run: apt update
-      - run: apt install -y git
-      - run: apt install -y zsh
+      - run: apt install -y git zsh
       - run: git submodule sync --recursive
       - run: git submodule update --init --recursive
       - run: ./test.sh bash
