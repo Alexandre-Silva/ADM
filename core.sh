@@ -33,14 +33,25 @@ adm_find_setups() {
     local root_dir="$1"
     ret=()
 
-    # The IFS must be set to \n so that names with spaces can be treated as one file.
-    IFS=$'\n'
-    for setup in $(find "$(realpath "$root_dir")" \
-                        -type f -name "*.setup.sh" \
-                        -or -type f -name "setup.sh" \
-                       | sort -d ); do
-        ret+=( "$setup" )
-    done
+    # TODO think of a way to abstract/simplify this option stuff
+    # Sets the followin opts, but stores their previous value
+    if [[ -n $BASH_VERSION ]]; then
+        local opts=(nullglob globstar)
+        local -a optset
+        for opt in "${opts[@]}"; do
+            shopt -q $opt; local optset[$opt]=$?
+            ((optset[$opt])) && shopt -s $opt
+        done
+    fi
+
+    ret=( "${root_dir}"/**/*.setup.sh "${root_dir}"/**/setup.sh )
+
+    # pops the options' previous value
+    if [[ -n $BASH_VERSION ]]; then
+        for opt in "${opts[@]}"; do
+            ((optset[$opt])) && shopt -u $opt
+        done
+    fi
 
     btr_unset IFS
 }
