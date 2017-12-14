@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 
 # This files handles the loading and use of various package manager wrappers in
 # pm.d directory.

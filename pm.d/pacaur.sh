@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 
 PACAUR_FLAGS=( --silent --noedit --noconfirm --noprogressbar --needed )
 TO_BE_UNSET+=( "PACAUR_FLAGS")

@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 
 NPM_FLAGS=( --global )
 TO_BE_UNSET+=( "NPM_FLAGS" )

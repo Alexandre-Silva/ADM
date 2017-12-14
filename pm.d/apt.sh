@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 
 APT_FLAGS=()
 TO_BE_UNSET+=( "APT_FLAGS" )

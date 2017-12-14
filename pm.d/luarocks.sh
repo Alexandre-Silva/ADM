@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 
 TO_BE_UNSET+=( "LUAROCKS_FLAGS" )
 

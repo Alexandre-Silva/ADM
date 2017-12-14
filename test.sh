@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 
 RUN_BASH=0
 RUN_ZSH=0
