@@ -9,20 +9,21 @@ jobs:
       - run: git submodule update --init --recursive
       - run: ./test.sh bash
 
-  # test-zsh:
-  #   docker:
-  #     - image: debian:stretch
-  #   steps:
-  #     - checkout
-  #     - run: apt install git
-  #     - run: apt install zsh
-  #     - run: git submodule sync --recursive
-  #     - run: git submodule update --init --recursive
-  #     - run: ./test.sh bash
+  test-zsh:
+    docker:
+      - image: debian:stretch
+    steps:
+      - checkout
+      - run: apt update
+      - run: apt install -y git
+      - run: apt install -y zsh
+      - run: git submodule sync --recursive
+      - run: git submodule update --init --recursive
+      - run: ./test.sh bash
 
 workflows:
   version: 2
   test-matrix:
     jobs:
       - test-bash
-      # - test-zsh
+      - test-zsh
