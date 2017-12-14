@@ -23,5 +23,5 @@ workflows:
   version: 2
   test-matrix:
     jobs:
-      - test-bash:
-      - test-zsh:
+      - test-bash
+      - test-zsh
