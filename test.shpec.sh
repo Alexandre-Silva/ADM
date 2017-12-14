@@ -225,10 +225,9 @@ describe "package managers wrappers"
                 local expected=( install foo bar )
 
                 assert arrayeq "${args[@]}" "${expected[@]}"
-                for i in 0 1 2; do assert equal "${args[$i]}" "${expected[$i]}"; done
 
                 p_called=1
-                return 77 # random number different than 0, 1, and 127
+                return 77 # arbitrary number different than 0, 1, and 127
             }
 
             adm_pm_register "suffixA" "pm_suffixA" 1>/dev/null 2>&1
@@ -247,7 +246,7 @@ describe "package managers wrappers"
                 local args=( "$@" )
                 local expected=( install foo )
 
-                for i in {0..2}; do assert equal "${args[$i]}" "${expected[$i]}"; done
+                assert arrayeq "${args[@]}" "${expected[@]}"
 
                 calledA=1
                 return 0
@@ -258,7 +257,7 @@ describe "package managers wrappers"
                 local args=( "$@" )
                 local expected=( install bar )
 
-                for i in {0..2}; do assert equal "${args[$i]}" "${expected[$i]}"; done
+                assert arrayeq "${args[@]}" "${expected[@]}"
 
                 calledB=1
                 return 0
@@ -287,7 +286,6 @@ describe "package managers wrappers"
             assert equal "$C" 1
         end
     end
-
     describe "linker"
         it "normal file"
             __setup
