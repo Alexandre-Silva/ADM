@@ -5,6 +5,7 @@ jobs:
       - image: debian:stretch
     steps:
       - checkout
+      - run: apt install git
       - run: git submodule sync --recursive
       - run: git submodule update --init --recursive
       - run: ./test.sh bash
@@ -14,9 +15,10 @@ jobs:
       - image: debian:stretch
     steps:
       - checkout
+      - run: apt install git
+      - run: apt install zsh
       - run: git submodule sync --recursive
       - run: git submodule update --init --recursive
-      - run: apt install zsh
       - run: ./test.sh bash
 
 workflows:
