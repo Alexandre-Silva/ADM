@@ -18,6 +18,7 @@ source "$ADM/opts.sh"
 # Main
 ####
 
-if [ -n "${ZSH_VERSION:-}" ]; then emulate bash ; fi
+
+if [ -n "${ZSH_VERSION:-}" ]; then set +o ksh_arrays +o sh_word_split; fi
 adm_main "$@"
-if [ -n "${ZSH_VERSION:-}" ]; then emulate zsh ; fi
+if [ -n "${ZSH_VERSION:-}" ]; then set -o ksh_arrays -o sh_word_split; fi

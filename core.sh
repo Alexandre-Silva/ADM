@@ -376,9 +376,7 @@ adm__source_safe() {
     adm__clean_setup_env
     adm__helpers "${setup}"
 
-    [[ -n "${ZSH_VERSION:-}" ]] && emulate zsh
     source "$setup"
-    [[ -n "${ZSH_VERSION:-}" ]] && emulate bash
 }
 
 adm__clean_setup_env() {
