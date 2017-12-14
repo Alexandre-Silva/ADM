@@ -12,8 +12,8 @@ ret=()
 # Funcs
 ####
 
-CD="builtin cd"
-LN="/bin/ln"
+CD() { builtin cd "$@"; }
+LN() { /bin/ln "$@"; }
 
 adm_init() {
     mkdir --parent "${ADM_TMP_DIR}"
@@ -117,7 +117,7 @@ adm_install_setup() {
                             --tmpdir="${ADM_TMP_DIR}" \
                             --directory \
                             "${setup_name}-${template}"-XXXXX)"
-        $CD "$tmp_dir"
+        CD "$tmp_dir"
 
         adm__run_function "st_install" "$setup"
         local ret_code=$?
@@ -129,7 +129,7 @@ adm_install_setup() {
     [[ $ret_code -eq 0 ]] && adm_link_setup "${setups[@]}"
 
     # Clean up
-    $CD "$curr_dir"
+    CD "$curr_dir"
     return $ret_code
 }
 
@@ -161,7 +161,7 @@ adm_link() {
         if [[ -L "$name" ]]; then
             if [[ $(readlink "$name") == "$target" ]]; then
                 echo -ne "$COL_CYAN"
-                $LN --no-target-directory --force --verbose --symbolic "$target" "$name"
+                LN --no-target-directory --force --verbose --symbolic "$target" "$name"
                 echo -ne "$COL_RESET"
             else
                 echo -e "$COL_RED $name: File already exists $COL_RESET"
@@ -177,7 +177,7 @@ adm_link() {
 
         echo -ne "$COL_GREEN"
         [[ ! -d  "$name_dir" ]] && mkdir --parents --verbose "$name_dir"
-        $LN --no-target-directory --force --verbose --symbolic "$target" "$name"
+        LN --no-target-directory --force --verbose --symbolic "$target" "$name"
         echo -ne "$COL_RESET"
     fi
     return 0
@@ -191,10 +191,11 @@ adm_link_setup() {
     adm_resolve_depends "${setups[@]}" && setups=( "${ret[@]}" ) || return 1
 
     for setup in "${setups[@]}"; do
-        adm__extract_var "$setup" "links" || return 1
+        adm__extract_var "$setup" "links" || return 1;
+
         local links=( "${ret[@]}" )
 
-        $CD "$(dirname $setup)"
+        CD "$(dirname $setup)"
 
         local i=0
         local j=1
@@ -205,7 +206,7 @@ adm_link_setup() {
             (( j = i + 1 ))
         done
 
-        $CD "$OLDPWD"
+        CD "$OLDPWD"
     done
 
     return 0
