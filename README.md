@@ -1,7 +1,35 @@
 # Introduction
-The core idea of ADM is the setup.sh file were all information about one *thing*
-is located. This *thing* can be any unit of configuration. For example, a
-configuration of emacs can have several .el (i.e. configuration) files, shell
+
+Tipically, one wants to keep track of the configuration files of used
+applications (i.e. dotfiles). However, that's not all we want to keep track of.
+Usually, we also have shell aliases, functions and environment variables. Also,
+we also want keep track which packages these dotfiles and shell configurations
+relate to. For example, when installing one's favorite text editor, we want to
+also install the spell-checking tool and accompanying dictionary, some
+auto-complete tool, code linters, etc. This means, that for *thing* we have all
+of these dotfiles, shell configurations, and packages to keep track of.
+
+After some research into other tools to perform dotfile management, I found that
+these topically only handle soft-link management. This is, usually, not enough
+for managing all that we want about our applications.
+
+Enter Alex's Dotfile Manager (ADM).
+
+// single tool to do it
+// all bash thus no extra dependencies
+// simple syntax. But in bash, thus, complicated stuff is possible to express.
+
+
+As a side, ADM was implemented such that it works both on Bash and ZSH. However,
+if you setup.sh files use ZSH only features, don't expect your configurations to
+work properly in BASH and vice-versa.
+
+
+# Quick-Start
+
+The core idea of ADM is the use of setup.sh files were all information about one
+*thing* is located. This *thing* can be any unit of configuration. For example,
+a configuration of emacs can have several .el (i.e. configuration) files, shell
 aliases for launching it, the necessary packages to install emacs and other
 tools such as jedi or JSLint. Additionally, some specific text font could be
 used which is contained in some other setup.sh. To express all this, one would
@@ -12,22 +40,15 @@ only need to create a setup.sh similar to the example below.
 depends=( path/to/font.setup.sh )
 packages=( apt:emacs apt:python-jedi )
 links=( ~/dotfiles/emacs.el ~/.emacs.el )
+st_profile() {
+  EMACS_HOME=~/.emacs.d
+}
 st_rc() {
   alias ec='emacs'            # launch GUI
   alias et='emacs --terminal' # launch in terminal
 }
 ```
 
-// single tool to do it
-
-// all bash
-
-After some research into other tools to perform dotfile management, I found that
-these topically only handle soft-link management. While in the previous example
-**all** configurations are located in a single place.
-
-# Quick-Start
-**TODO**
 
 # Installation
 1a - Download and save the repository.
