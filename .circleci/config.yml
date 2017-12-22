@@ -2,7 +2,7 @@ version: 2
 jobs:
   test-bash:
     docker:
-      - image: circleci/python:3
+      - image: alexandress/admtest:latest
     steps:
       - checkout
       - run: git submodule sync --recursive
@@ -11,14 +11,12 @@ jobs:
 
   test-zsh:
     docker:
-      - image: debian:stretch
+      - image: alexandress/admtest:latest
     steps:
       - checkout
-      - run: apt update
-      - run: apt install -y git zsh
       - run: git submodule sync --recursive
       - run: git submodule update --init --recursive
-      - run: ./test.sh bash
+      - run: ./test.sh zsh
 
 workflows:
   version: 2
