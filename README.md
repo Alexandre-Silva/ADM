@@ -31,31 +31,6 @@ if you setup.sh files use ZSH only features, don't expect your configurations to
 work properly in BASH or vice-versa.
 
 
-# Quick-Start
-
-The core idea of ADM is the use of setup.sh files were all information about one
-*thing* is located. This *thing* can be any unit of configuration. For example,
-a configuration of emacs can have several .el (i.e. configuration) files, shell
-aliases for launching it, the necessary packages to install emacs and other
-tools such as jedi or JSLint. Additionally, some specific text font could be
-used which is contained in some other setup.sh. To express all this, one would
-only need to create a setup.sh similar to the example below.
-
-```bash
-# emacs.setup.sh
-depends=( path/to/font.setup.sh )
-packages=( apt:emacs apt:python-jedi )
-links=( ~/dotfiles/emacs.el ~/.emacs.el )
-st_profile() {
-  EMACS_HOME=~/.emacs.d
-}
-st_rc() {
-  alias ec='emacs'            # launch GUI
-  alias et='emacs --terminal' # launch in terminal
-}
-```
-
-
 # Installation
 1a - Download and save the repository.
 ```bash
@@ -91,11 +66,52 @@ ADM is designed to work on both Bash and ZSH. The required are, respectively:
 
 # Usage
 
-## adm tool
+The core idea of ADM is the use of setup.sh files were all information about one
+*thing* is located. This *thing* can be any unit of configuration. For example,
+a configuration of emacs can have several .el (i.e. configuration) files, shell
+aliases for launching it, the necessary packages to install emacs and other
+tools such as jedi or JSLint. Additionally, some specific text font could be
+used which is contained in some other setup.sh. To express all this, one would
+only need to create a setup.sh similar to the example below.
+
 ```bash
-adm install
+# emacs.setup.sh
+depends=( path/to/font.setup.sh )
+packages=( apt:emacs apt:python-jedi )
+links=( ~/dotfiles/emacs.el ~/.emacs.el )
+st_profile() {
+  EMACS_HOME=~/.emacs.d
+}
+st_rc() {
+  alias ec='emacs'            # launch GUI
+  alias et='emacs --terminal' # launch in terminal
+}
 ```
-To install all *.config.sh in the directory and sub-directories.
+
+Then, we can, for example, run
+```bash
+adm install emacs.setup.sh
+```
+to install the specified setup and its dependencies and associated softlinks.
+
+## adm tool
+
+### install
+```bash
+adm install <path to setup> [<more setups> [...]]
+```
+
+the `install` command has three phases:
+
+1. Install all packages specified in the `packages` variables of all setup files.
+2. Runs the st_install function of the setups (if present)
+3. Creates all necessary symlinks. (Equivalent to executing `adm link <setup1> <setup2> ...`)
+
+It's important to note that, the actual setups that will be installed includes
+all those specified in the original command *and* their dependencies.
+Furthermore, in each phase the setups are processed in an order which doesn't
+break dependency chains. Unless circular dependencies exist, at which point you
+should reconsider your life choices.
 
 
 ## *.setup.sh
