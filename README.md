@@ -96,16 +96,7 @@ to install the specified setup and its dependencies and associated softlinks.
 
 ## adm tool
 
-### install
-```bash
-adm install <path to setup> [<more setups> [...]]
-```
-
-the `install` command has three phases:
-
-1. Install all packages specified in the `packages` variables of all setup files.
-2. Runs the st_install function of the setups (if present)
-3. Creates all necessary symlinks. (Equivalent to executing `adm link <setup1> <setup2> ...`)
+TODO: intro
 
 It's important to note that, the actual setups that will be installed includes
 all those specified in the original command *and* their dependencies.
@@ -113,6 +104,62 @@ Furthermore, in each phase the setups are processed in an order which doesn't
 break dependency chains. Unless circular dependencies exist, at which point you
 should reconsider your life choices.
 
+### install
+
+```bash
+adm install <path to setup> [<more setups> [...]]
+```
+
+the `install` command has three phases:
+
+1. Install all packages specified in the `packages` variables of all setup
+   files. (Equivalent to executing `adm pkgs <setup1> <setup2> ...`)
+2. Runs the st_install function of the setups (if present)
+3. Creates all necessary symlinks. (Equivalent to executing `adm link <setup1> <setup2> ...`)
+
+### pkgs
+
+```bash
+adm pkgs <path to setup> [<more setups> [...]]
+```
+
+Install all packages specified by the setups using the appropriate package
+manager. See the [packages variable section](#packages)
+
+### link
+
+```bash
+adm install <path to setup> [<more setups> [...]]
+```
+
+Creates all symlinks specified by the setups. See the [links variable section](#links)
+
+### profile
+
+```bash
+adm profile <path to setup> [<more setups> [...]]
+```
+
+For each setup, executes the `st_profile` function (if present).
+
+### rc
+
+```bash
+adm rc <path to setup> [<more setups> [...]]
+```
+
+For each setup, executes the `st_rc` function (if present).
+
+### list
+
+
+```bash
+adm rc [<path to file or dir> [...]]
+```
+
+Finds and lists all setup files in the provided directories of files. If no file
+or dir is provided, the directory in environment variable `DOTFILES` is searched
+instead.
 
 ## *.setup.sh
 
