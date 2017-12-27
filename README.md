@@ -8,23 +8,27 @@ Usually, we also have shell aliases, functions and environment variables. Also,
 we also want keep track which packages these dotfiles and shell configurations
 relate to. For example, when installing one's favorite text editor, we want to
 also install the spell-checking tool and accompanying dictionary, some
-auto-complete tool, code linters, etc. This means, that for *thing* we have all
-of these dotfiles, shell configurations, and packages to keep track of.
+auto-complete tool, code linters, etc. This ilustrates that for some *thing* we
+can have a multitude of dotfiles, shell configurations, and packages to keep
+track of.
 
 After some research into other tools to perform dotfile management, I found that
-these topically only handle soft-link management. This is, usually, not enough
-for managing all that we want about our applications.
+these, typically, only handle soft-link management. That is not enough for
+managing *all* that we want about our applications. Enter Alex's Dotfile Manager
+(ADM).
 
-Enter Alex's Dotfile Manager (ADM).
+ADM is a tool to support these mentioned functionalities. It was heavily
+inspired by ArchLinux's PKGBUILD system. It is also:
 
-// single tool to do it
-// all bash thus no extra dependencies
-// simple syntax. But in bash, thus, complicated stuff is possible to express.
-
+* A one stop shop for dotfile management.
+* Totally implemented in bash/zsh without other dependencies making it very
+  portable.
+* Configuration can be written in any shell script, thus simple things are easy
+to express while still permitting complex things.
 
 As a side, ADM was implemented such that it works both on Bash and ZSH. However,
 if you setup.sh files use ZSH only features, don't expect your configurations to
-work properly in BASH and vice-versa.
+work properly in BASH or vice-versa.
 
 
 # Quick-Start
