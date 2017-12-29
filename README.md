@@ -27,8 +27,8 @@ inspired by ArchLinux's PKGBUILD system. It is also:
 to express while still permitting complex things.
 
 As a side, ADM was implemented such that it works both on Bash and ZSH. However,
-if you setup.sh files use ZSH only features, don't expect your configurations to
-work properly in BASH or vice-versa.
+if your setup files use ZSH only features, don't expect them to work properly in
+BASH or vice-versa.
 
 
 # Installation
@@ -94,9 +94,10 @@ adm install emacs.setup.sh
 ```
 to install the specified setup and its dependencies and associated softlinks.
 
+
 ## adm tool
 
-TODO: intro
+The `adm` command has a set of subcommands to manage the various setup.sh files.
 
 It's important to note that, the actual setups that will be installed includes
 all those specified in the original command *and* their dependencies.
@@ -161,11 +162,35 @@ Finds and lists all setup files in the provided directories of files. If no file
 or dir is provided, the directory in environment variable `DOTFILES` is searched
 instead.
 
+
 ## *.setup.sh
 
-This files are all source into the current shell. Therefore, it's a good idea to
-use some helper functions to prevent polluting the shell's environment.
-TODO: put example
+Each setup file is nothing more than a shell script file were `adm` expects to
+find some variables and functions with certain names. Therefore, you can use all
+the trickery of Bash, ZSH and others, to fill in these variables and functions.
+
+When `adm` needs to process a setup file for some subcommand, it first sources
+it and then reads a variable or executes a function (see following
+sub-sections). This means that if you define something outside of these
+variables and functions it will be executed one or more times, for any
+subcommand which reads the setup. E.g.:
+
+```bash
+# example.setup.sh
+packages=( apt:foo apt:bar )
+echo 123
+```
+
+In this example, any subcommand which pertaining this file will print `123` into
+the shell. Therefore, it's a good idea to use some helper functions to prevent
+polluting the shell's environment.
+
+There are several commands were you can provide a directory and `adm` will
+recursively search the folder hierarchy for setups. It searches for a file of
+'\<name\>.setup.sh' or just 'setup.sh'. For the latter case, the name of the
+setup (as shown by `adm`) will be the name of the containing directory. E.g.:
+'\<name\>*/*setup.sh'. Note, that if you explicitly provide a file which doesn't
+match this format, `adm` will still treat it has a setup file.
 
 ### depends
 This var should contain a list of other setup.sh which must be processed. The
@@ -219,6 +244,9 @@ links=(
 )
 ```
 
+If the target path has non-existing directories `adm` will create them if need
+be before the target soft-link.
+
 Don't forget that this is a bash/zsh array. Therefore, special care around
 special characters and spaces should be taken. Furthermore, helper variables and
 other bash/zsh logic can be used. For example:
@@ -250,6 +278,10 @@ When writing the setup.sh, there are a few quality of life features that can be 
 - ADM\_INSTALL\_DIR: The folder in which setup.sh files are given to create
   temporary files and alike. Note that each setup file is given its own directory,
   e.g. foo.setup.sh uses $ADM\_INSTALL\_DIR/foo/
+
+### Package Managers
+
+*TODO*
 
 # Important notes
 The prefix ```'adm_*'``` is reserved for internal ADM functions. However, you
