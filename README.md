@@ -262,7 +262,7 @@ done
 If a function named *install* is present it's executed when the adm command of
 the same is called.
 
-### st_profile(), st_rc()
+### st\_profile(), st\_rc()
 Functions named *st\_profile*, and *st\_rc* are executed when the adm commands profile and rc, respectively.
 
 ### Helpers
