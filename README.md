@@ -257,7 +257,44 @@ When writing the setup.sh, there are a few quality of life features that can be 
 
 ### Package Managers
 
-*TODO*
+Inside the [pm.d][1] directory you will find several scripts. These are
+dynamically detected, sourced by and used by *adm* to wrap actual package
+managers. For example, *pip.sh* is the python's package manager.
+
+[1]: https://github.com/Alexandre-Silva/ADM/tree/master/pm.d
+
+These don't have much interest unless you intend on adding one yourself. If you
+are, then the process is straightforward. First create a new file with suffix
+*.sh* in the mentioned directory. Then, inside the file you must define a
+function which accepts as first parameter a command and a list of packages.
+Currently, only *install* is currently used as first argument. However, this way
+future extensions are possible. When called with the *install* argument, this
+function should use the underlying package manager to install the supplied
+packages. Then call the *adm_pm_register* function with the environment name as
+the first argument and the name of the defined function as the second.
+
+For example, inside *pip.sh*, the *adm_pm__pip* function is register to the
+*pip* environment. I.e.:
+
+```bash
+hash pip &>/dev/null && adm_pm_register "pip" "adm_pm__pip"
+```
+
+Note the `hash pip &>/dev/null && ...`. Since python and/or pip may not be
+installed and we only want register it if it is, the above expression only
+registers the package manager if it can find pip in the **PATH**.
+
+If you read the [pip.sh][2] file, we use the **TO_BE_UNSET** variable to declare
+that the helper var **PIP_FLAGS** is to be unset once the *adm* tool exits
+executing a sub-command. Furthermore, note that the function to register
+(*adm_pm__pip*) starts which *adm*. This mean that it will be dynamically unset
+once *adm* exits.
+
+[2]: https://github.com/Alexandre-Silva/ADM/blob/master/pm.d/pip.sh
+
+As a side-note, we recommend to call the underlying package manager to not
+reinstall packages if they are already up-to-date. Which is the default behavior
+of pacman, for example.
 
 # Important notes
 The prefix ```'adm_*'``` is reserved for internal ADM functions. However, you
