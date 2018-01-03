@@ -6,14 +6,14 @@ Tipically, one wants to keep track of the configuration files of used
 applications (i.e. dotfiles). However, that's not all we want to keep track of.
 Usually, we also have shell aliases, functions and environment variables. Also,
 we also want keep track which packages these dotfiles and shell configurations
-relate to. For example, when installing one's favorite text editor, we want to
+relate to. For example, when installing one's favorite text editor we want to
 also install the spell-checking tool and accompanying dictionary, some
 auto-complete tool, code linters, etc. This ilustrates that for some *thing* we
 can have a multitude of dotfiles, shell configurations, and packages to keep
 track of.
 
 After some research into other tools to perform dotfile management, I found that
-these, typically, only handle soft-link management. That is not enough for
+these, typically, only handle soft-link management. Which is not enough for
 managing *all* that we want about our applications. Enter Alex's Dotfile Manager
 (ADM).
 
@@ -26,62 +26,28 @@ inspired by ArchLinux's PKGBUILD system. It is also:
 * Configuration can be written in any shell script, thus simple things are easy
 to express while still permitting complex things.
 
-As a side, ADM was implemented such that it works both on Bash and ZSH. However,
-if your setup files use ZSH only features, don't expect them to work properly in
-BASH or vice-versa.
-
-
-# Installation
-1a - Download and save the repository.
-```bash
-git clone --recursive https://github.com/Alexandre-Silva/ADM.git
-```
-1b - Or as submodule inside a git repository.
-
-```bash
-git submodule add https://github.com/Alexandre-Silva/ADM.git
-```
-Then, to update other machines.
-```bash
-git submodule sync --recursive
-git submodule update --recursive --init
-```
-
-2 - Add the following to your .profile or .zprofile
-```bash
-export ADM=/path/to/ADM
-function adm() { source $ADM/adm.sh "$@" }
-```
-
-Note that 'adm.sh' must be sourced and not executed in a sub-shell. Otherwise,
-most configurations (aliases, environment variables, functions, etc) would not
-be exported to the current shell.
-
-# Requirements
-ADM is designed to work on both Bash and ZSH. The required are, respectively:
-
-- Bash: version 4.0.0 or higher (required for associative arrays)
-- ZSH: any version
-
 
 # Usage
 
 The core idea of ADM is the use of setup.sh files were all information about one
-*thing* is located. This *thing* can be any unit of configuration. For example,
-a configuration of emacs can have several .el (i.e. configuration) files, shell
-aliases for launching it, the necessary packages to install emacs and other
-tools such as jedi or JSLint. Additionally, some specific text font could be
-used which is contained in some other setup.sh. To express all this, one would
-only need to create a setup.sh similar to the example below.
+*thing* is located. This *thing* can be any unit of configuration, henceforth
+named a *setup*. For example, a setup configuration for emacs can have several .el
+(i.e. configuration) files, shell aliases for launching it, the necessary
+packages to install emacs and other tools such as jedi or JSLint. Additionally,
+some specific text font could be used which is contained in some other setup.sh.
+To express all this, one would only need to create a setup.sh similar to the
+example below.
 
 ```bash
 # emacs.setup.sh
 depends=( path/to/font.setup.sh )
 packages=( apt:emacs apt:python-jedi )
 links=( ~/dotfiles/emacs.el ~/.emacs.el )
+
 st_profile() {
-  EMACS_HOME=~/.emacs.d
+  export EMACS_HOME=~/.emacs.d
 }
+
 st_rc() {
   alias ec='emacs'            # launch GUI
   alias et='emacs --terminal' # launch in terminal
@@ -102,8 +68,11 @@ The `adm` command has a set of subcommands to manage the various setup.sh files.
 It's important to note that, the actual setups that will be installed includes
 all those specified in the original command *and* their dependencies.
 Furthermore, in each phase the setups are processed in an order which doesn't
-break dependency chains. Unless circular dependencies exist, at which point you
-should reconsider your life choices.
+break dependency chains. Unless of course circular dependencies exist, at which
+point you should reconsider your life choices.
+
+Following subsections explains how each sub-command is to be used and what's its
+purpose. The name of section is the name of the sub-command.
 
 ### install
 
@@ -167,7 +136,7 @@ instead.
 
 Each setup file is nothing more than a shell script file were `adm` expects to
 find some variables and functions with certain names. Therefore, you can use all
-the trickery of Bash, ZSH and others, to fill in these variables and functions.
+the trickery of Bash, ZSH and others to fill in these variables and functions.
 
 When `adm` needs to process a setup file for some subcommand, it first sources
 it and then reads a variable or executes a function (see following
@@ -189,8 +158,15 @@ There are several commands were you can provide a directory and `adm` will
 recursively search the folder hierarchy for setups. It searches for a file of
 '\<name\>.setup.sh' or just 'setup.sh'. For the latter case, the name of the
 setup (as shown by `adm`) will be the name of the containing directory. E.g.:
-'\<name\>*/*setup.sh'. Note, that if you explicitly provide a file which doesn't
+'\<name\>/setup.sh'. Note, that if you explicitly provide a file which doesn't
 match this format, `adm` will still treat it has a setup file.
+
+Note that *adm* was implemented such that it works both on Bash and ZSH (other
+shells are untested). However, if your setup files use ZSH only features, don't
+expect them to work properly in BASH or vice-versa.
+
+Following subsections explains how each variable is used and what's its purpose.
+The name of section is the name of the variable.
 
 ### depends
 This var should contain a list of other setup.sh which must be processed. The
@@ -210,7 +186,7 @@ install using both *npm* or *yarn*. However, both tools share the same packages.
 
 Note that for Arch Linux the tools used for installing AUR packages can also be
 used to install packges from the normal arch repositories. But for clarity
-reasons, the two separate environment prefixes are used, respectively, *pm:* and
+reasons, two separate environment prefixes are used, respectively, *pm:* and
 *aur:*.
 
 ```bash
@@ -288,3 +264,36 @@ The prefix ```'adm_*'``` is reserved for internal ADM functions. However, you
 will note that no function is exported to the shell environment even though
 $ADM/adm.sh is sourced. This is because ADM dynamically unsets **all** functions
 with that prefix.
+
+
+# Installation
+1a - Download and save the repository.
+```bash
+git clone --recursive https://github.com/Alexandre-Silva/ADM.git
+```
+1b - Or as submodule inside a git repository.
+
+```bash
+git submodule add https://github.com/Alexandre-Silva/ADM.git
+```
+Then, to update other machines.
+```bash
+git submodule sync --recursive
+git submodule update --recursive --init
+```
+
+2 - Add the following to your .profile or .zprofile
+```bash
+export ADM=/path/to/ADM
+function adm() { source $ADM/adm.sh "$@" }
+```
+
+Note that 'adm.sh' must be sourced and not executed in a sub-shell. Otherwise,
+most configurations (aliases, environment variables, functions, etc) would not
+be exported to the current shell.
+
+# Requirements
+ADM is designed to work on both Bash and ZSH. The required are, respectively:
+
+- Bash: version 4.0.0 or higher (required for associative arrays)
+- ZSH: any version
