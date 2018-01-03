@@ -1,5 +1,33 @@
 [![CircleCI](https://circleci.com/gh/Alexandre-Silva/ADM.svg?style=svg)](https://circleci.com/gh/Alexandre-Silva/ADM)
 
+<!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
+**Table of Contents**
+
+- [Introduction](#introduction)
+- [Usage](#usage)
+    - [adm tool](#adm-tool)
+        - [install](#install)
+        - [pkgs](#pkgs)
+        - [link](#link)
+        - [profile](#profile)
+        - [rc](#rc)
+        - [list](#list)
+    - [*.setup.sh](#setupsh)
+        - [depends](#depends)
+        - [packages](#packages)
+        - [links](#links)
+        - [install()](#install)
+        - [st\_profile(), st\_rc()](#stprofile-strc)
+        - [Helpers](#helpers)
+    - [Configurations](#configurations)
+        - [Environment vars](#environment-vars)
+        - [Package Managers](#package-managers)
+- [Important notes](#important-notes)
+- [Installation](#installation)
+- [Requirements](#requirements)
+
+<!-- markdown-toc end -->
+
 # Introduction
 
 Tipically, one wants to keep track of the configuration files of used
@@ -32,14 +60,14 @@ to express while still permitting complex things.
 The core idea of ADM is the use of setup.sh files were all information about one
 *thing* is located. This *thing* can be any unit of configuration, henceforth
 named a *setup*. For example, a setup configuration for emacs can have several .el
-(i.e. configuration) files, shell aliases for launching it, the necessary
+(i.e. configuration** files, shell aliases for launching it, the necessary
 packages to install emacs and other tools such as jedi or JSLint. Additionally,
 some specific text font could be used which is contained in some other setup.sh.
 To express all this, one would only need to create a setup.sh similar to the
 example below.
 
 ```bash
-# emacs.setup.sh
+#emacs.setup.sh
 depends=( path/to/font.setup.sh )
 packages=( apt:emacs apt:python-jedi )
 links=( ~/dotfiles/emacs.el ~/.emacs.el )
