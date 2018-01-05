@@ -25,6 +25,7 @@
 - [Important notes](#important-notes)
 - [Installation](#installation)
 - [Requirements](#requirements)
+- [Tests](#tests)
 
 <!-- markdown-toc end -->
 
@@ -289,8 +290,6 @@ Inside the [pm.d][1] directory you will find several scripts. These are
 dynamically detected, sourced by and used by *adm* to wrap actual package
 managers. For example, *pip.sh* is the python's package manager.
 
-[1]: https://github.com/Alexandre-Silva/ADM/tree/master/pm.d
-
 These don't have much interest unless you intend on adding one yourself. If you
 are, then the process is straightforward. First create a new file with suffix
 *.sh* in the mentioned directory. Then, inside the file you must define a
@@ -318,11 +317,13 @@ executing a sub-command. Furthermore, note that the function to register
 (*adm_pm__pip*) starts which *adm*. This mean that it will be dynamically unset
 once *adm* exits.
 
-[2]: https://github.com/Alexandre-Silva/ADM/blob/master/pm.d/pip.sh
-
 As a side-note, we recommend to call the underlying package manager to not
 reinstall packages if they are already up-to-date. Which is the default behavior
 of pacman, for example.
+
+[1]: https://github.com/Alexandre-Silva/ADM/tree/master/pm.d
+[2]: https://github.com/Alexandre-Silva/ADM/blob/master/pm.d/pip.sh
+
 
 # Important notes
 The prefix ```'adm_*'``` is reserved for internal ADM functions. However, you
@@ -362,3 +363,12 @@ ADM is designed to work on both Bash and ZSH. The required are, respectively:
 
 - Bash: version 4.0.0 or higher (required for associative arrays)
 - ZSH: any version
+
+# Tests
+`adm` has a test suite implemented using [shpec][3]. To run it, execute
+`./test.sh <shell>`. The *shell* argument indicates which shell to use for the
+testing, currently only bash and zsh are supported. For convenience, the *all*
+argument can be used.
+
+
+[3]: https://github.com/rylnd/shpec
