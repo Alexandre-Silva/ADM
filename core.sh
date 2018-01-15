@@ -375,7 +375,7 @@ adm__extract_var() {
     fi
 
     # copies `name` into `ret`
-    ret+=( $(eval 'echo ${'"$name"'[@]}') )
+    eval 'ret+=( ${'"$name"'[@]} )'
 
     return 0
 }
