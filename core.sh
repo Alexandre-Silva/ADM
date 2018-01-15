@@ -279,6 +279,8 @@ adm_extract_setup_paths() {
 adm_main() {
     local args=( "$@" )
 
+    adm_sh_on_exit 'adm_cleanup'
+
     # Handle options
     adm_opts_init
     adm_opts_build_parser
@@ -308,11 +310,16 @@ adm_main() {
         *)        error              "Invalid commands: $command" ; return 1 ;;
     esac
 
+    return 0
+}
+
+# Last function to be executed which cleanups all the things
+adm_cleanup() {
     adm__clean_setup_env
     adm__mark_functions
     adm__unset_marked
 
-    return 0
+    [[ -d "${ADM_TMP_DIR}" ]] && rm -rf "${ADM_TMP_DIR}"
 }
 
 

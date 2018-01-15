@@ -79,3 +79,25 @@ function btr_unset_f() {
 
 }
 # not to be unset
+
+#--------------------------------------------------------------------------------
+# Shell compatibility functions between ZSH and BASH
+#--------------------------------------------------------------------------------
+
+# Registers $exit_cmd to be executed when exiting.
+adm_sh_on_exit() {
+    local exit_cmd="$1"
+
+    if [ "$ZSH_VERSION" ]; then
+        ADM_SH_ON_EXIT="${exit_cmd}"
+        zshexit() { "${ADM_SH_ON_EXIT}"; }
+        TO_BE_UNSET+=( 'ADM_SH_ON_EXIT' )
+
+    elif [ "$BASH_VERSION" ]; then
+        trap "$exit_cmd" EXIT     # POSIX
+
+    else
+        error "Unknown shell"
+        exit 1
+    fi
+}
