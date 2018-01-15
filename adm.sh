@@ -18,7 +18,6 @@ source "$ADM/opts.sh"
 # Main
 ####
 
-
-if [ -n "${ZSH_VERSION:-}" ]; then set +o ksh_arrays +o sh_word_split; fi
+adm_sh_compat_mode_on
 adm_main "$@"
-if [ -n "${ZSH_VERSION:-}" ]; then set -o ksh_arrays -o sh_word_split; fi
+adm_sh_compat_mode_off

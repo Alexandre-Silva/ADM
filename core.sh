@@ -301,7 +301,7 @@ adm_main() {
         install)  adm_install_setup  "${args[@]}"                ;;
         link)     adm_link_setup     "${args[@]}"                ;;
         list)     adm_list           "${args[@]}"                ;;
-        noop)     return             0                           ;; # testing  purposes
+        noop)                                                    ;; # testing  purposes
         pkgs)     adm_install_pkgs   "${args[@]}"                ;;
         profile)  adm__run_function  "st_profile"  "${args[@]}"  ;;
         rc)       adm__run_function  "st_rc"       "${args[@]}"  ;;
@@ -310,16 +310,20 @@ adm_main() {
         *)        error              "Invalid commands: $command" ; return 1 ;;
     esac
 
+    adm_sh_compat_mode_off
     return 0
 }
 
 # Last function to be executed which cleanups all the things
 adm_cleanup() {
+    [[ -d "${ADM_TMP_DIR}" ]] && rm -rf "${ADM_TMP_DIR}"
+
     adm__clean_setup_env
     adm__mark_functions
-    adm__unset_marked
 
-    [[ -d "${ADM_TMP_DIR}" ]] && rm -rf "${ADM_TMP_DIR}"
+    adm_sh_compat_mode_off
+
+    adm__unset_marked
 }
 
 

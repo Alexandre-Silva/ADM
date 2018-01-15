@@ -101,3 +101,13 @@ adm_sh_on_exit() {
         exit 1
     fi
 }
+
+# Sets the shell (bash/zsh) such that adm can work on both shells
+adm_sh_compat_mode_on() {
+    if [ -n "${ZSH_VERSION:-}" ]; then set +o ksh_arrays +o sh_word_split; fi
+}
+
+# Sets the shell (bash/zsh) such that adm can work on both shells
+adm_sh_compat_mode_off() {
+    if [ -n "${ZSH_VERSION:-}" ]; then set -o ksh_arrays -o sh_word_split; fi
+}
