@@ -264,6 +264,7 @@ adm_main() {
     local args=( "$@" )
 
     adm_sh_on_exit 'adm_cleanup'
+    adm_sh_compat_mode_on
 
     # Handle options
     adm_opts_init

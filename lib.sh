@@ -104,12 +104,12 @@ adm_sh_on_exit() {
 
 # Sets the shell (bash/zsh) such that adm can work on both shells
 adm_sh_compat_mode_on() {
-    if [ -n "${ZSH_VERSION:-}" ]; then set +o ksh_arrays +o sh_word_split; fi
+    if [ -n "${ZSH_VERSION:-}" ]; then adm_sh_setopt_push +ksharrays +shwordsplit; fi
 }
 
 # Sets the shell (bash/zsh) such that adm can work on both shells
 adm_sh_compat_mode_off() {
-    if [ -n "${ZSH_VERSION:-}" ]; then set -o ksh_arrays -o sh_word_split; fi
+    if [ -n "${ZSH_VERSION:-}" ]; then adm_sh_setopt_pop; fi
 }
 
 adm_sh_setopt() {
@@ -118,6 +118,7 @@ adm_sh_setopt() {
             case "$opt" in
                 +*) setopt "${opt#+}" ;;
                 -*) unsetopt "${opt#-}" ;;
+                '') ;;
                 *) error "$0: options must be in format +<optname> or -<optname>"
             esac
         done
@@ -127,6 +128,7 @@ adm_sh_setopt() {
             case "$opt" in
                 +*) shopt -s "${opt#+}" ;;
                 -*) shopt -u "${opt#-}" ;;
+                '') ;;
                 *) error "$0: options must be in format +<optname> or -<optname>"
             esac
         done
@@ -139,20 +141,24 @@ adm_sh_setopt() {
 
 SHELL_OPT_STACK=()
 adm_sh_setopt_push() {
+    local opts_group=""
+
     if [ "$ZSH_VERSION" ]; then
         for opt in "$@"; do
             case "$opt" in
-                +*) unsetopt | grep "${opt#+}" &>/dev/null && SHELL_OPT_STACK+=( "$opt") ;;
-                -*) setopt   | grep "${opt#-}" &>/dev/null && SHELL_OPT_STACK+=( "$opt") ;;
-                *) error "$0: options must be in format +<optname> or -<optname>"
+                +*) unsetopt | grep "${opt#+}" &>/dev/null && opts_group+=":-${opt#+}" ;;
+                -*) setopt   | grep "${opt#-}" &>/dev/null && opts_group+=":+${opt#-}" ;;
+                '') ;;
+                *) error "$0: options must be in format +<optname> or -<optname>: $opt"
             esac
         done
 
     elif [ "$BASH_VERSION" ]; then
         for opt in "$@"; do
             case "$opt" in
-                +*) shopt -q "${opt#+}" || SHELL_OPT_STACK+=( "$opt" ) ;;
-                -*) shopt -q "${opt#-}" && SHELL_OPT_STACK+=( "$opt" ) ;;
+                +*) shopt -q "${opt#+}" || opts_group+=":$opt" ;;
+                -*) shopt -q "${opt#-}" && opts_group+=":$opt" ;;
+                '') ;;
                 *) error "$0: options must be in format +<optname> or -<optname>"
             esac
         done
@@ -162,9 +168,20 @@ adm_sh_setopt_push() {
         exit 1
     fi
 
+    SHELL_OPT_STACK+=( "${opts_group}" )
     adm_sh_setopt "$@"
+    echo pushing "$@"
 }
 
 adm_sh_setopt_pop() {
-    adm_sh_setopt "${SHELL_OPT_STACK[@]}"
+    local opts_group="${SHELL_OPT_STACK[-1]}"
+    unset 'SHELL_OPT_STACK[${#SHELL_OPT_STACK[@]}-1]'
+
+    if   [ "$ZSH_VERSION" ];  then local opts=("${(@s/:/)opts_group}")
+    elif [ "$BASH_VERSION" ]; then IFS=':' read -a opts <<< "${opts_group}";
+    else                      error "Unknown shell"; exit 1
+    fi
+
+    adm_sh_setopt "${opts[@]}"
+    echo poping "${opts[@]}"
 }

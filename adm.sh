@@ -18,6 +18,4 @@ source "$ADM/opts.sh"
 # Main
 ####
 
-adm_sh_compat_mode_on
 adm_main "$@"
-adm_sh_compat_mode_off

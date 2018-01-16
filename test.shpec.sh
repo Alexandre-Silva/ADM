@@ -21,8 +21,7 @@ source "$ADM/adm.sh" noop
 
 
 if [[ -n "$ZSH_VERSION" ]]; then
-    # set -o ksh_arrays
-    :
+    adm_sh_compat_mode_on
 fi
 
 __setup_base() {

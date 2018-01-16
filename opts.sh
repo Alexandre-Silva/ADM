@@ -28,7 +28,7 @@ adm_opts_init() {
     declare -gA ADM_OPT_HELP  # Map of longopt 'name' -> help string
 }
 
-TO_BE_UNSET+=( ADM_OPTSPEC ADM_OPT ADM_OPT_SHORT ADM_OPT_L2S ADM_OPT_PARSE ADM_OPT_HELP)
+TO_BE_UNSET+=( ADM_OPTSPEC ADM_OPT ADM_OPT_SHORT ADM_OPT_L2S ADM_OPT_PARSE ADM_OPT_HELP )
 
 
 # Adds an option which can be parsed by adm_parse_opts.
