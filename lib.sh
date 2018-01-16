@@ -170,8 +170,6 @@ adm_sh_setopt_push() {
 
     SHELL_OPT_STACK+=( "${opts_group}" )
     adm_sh_setopt "$@"
-    echo pushing "$@"
-    echo SHELL_OPT_STACK "${SHELL_OPT_STACK[@]}" "${#SHELL_OPT_STACK[@]}"
 }
 
 adm_sh_setopt_pop() {
@@ -188,6 +186,4 @@ adm_sh_setopt_pop() {
     fi
 
     adm_sh_setopt "${opts[@]}"
-    echo poping "${opts[@]}"
-    echo SHELL_OPT_STACK "${SHELL_OPT_STACK[@]}" "${#SHELL_OPT_STACK[@]}"
 }
