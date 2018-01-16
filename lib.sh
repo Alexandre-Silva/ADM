@@ -111,3 +111,60 @@ adm_sh_compat_mode_on() {
 adm_sh_compat_mode_off() {
     if [ -n "${ZSH_VERSION:-}" ]; then set -o ksh_arrays -o sh_word_split; fi
 }
+
+adm_sh_setopt() {
+    if [ "$ZSH_VERSION" ]; then
+        for opt in "$@"; do
+            case "$opt" in
+                +*) setopt "${opt#+}" ;;
+                -*) unsetopt "${opt#-}" ;;
+                *) error "$0: options must be in format +<optname> or -<optname>"
+            esac
+        done
+
+    elif [ "$BASH_VERSION" ]; then
+        for opt in "$@"; do
+            case "$opt" in
+                +*) shopt -s "${opt#+}" ;;
+                -*) shopt -u "${opt#-}" ;;
+                *) error "$0: options must be in format +<optname> or -<optname>"
+            esac
+        done
+
+    else
+        error "Unknown shell"
+        exit 1
+    fi
+}
+
+SHELL_OPT_STACK=()
+adm_sh_setopt_push() {
+    if [ "$ZSH_VERSION" ]; then
+        for opt in "$@"; do
+            case "$opt" in
+                +*) unsetopt | grep "${opt#+}" &>/dev/null && SHELL_OPT_STACK+=( "$opt") ;;
+                -*) setopt   | grep "${opt#-}" &>/dev/null && SHELL_OPT_STACK+=( "$opt") ;;
+                *) error "$0: options must be in format +<optname> or -<optname>"
+            esac
+        done
+
+    elif [ "$BASH_VERSION" ]; then
+        for opt in "$@"; do
+            case "$opt" in
+                +*) shopt -q "${opt#+}" || SHELL_OPT_STACK+=( "$opt" ) ;;
+                -*) shopt -q "${opt#-}" && SHELL_OPT_STACK+=( "$opt" ) ;;
+                *) error "$0: options must be in format +<optname> or -<optname>"
+            esac
+        done
+
+    else
+        error "Unknown shell"
+        exit 1
+    fi
+
+    adm_sh_setopt "$@"
+}
+
+adm_sh_setopt_pop() {
+    adm_sh_setopt "${SHELL_OPT_STACK[@]}"
+}

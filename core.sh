@@ -33,25 +33,9 @@ adm_find_setups() {
     local root_dir="$1"
     ret=()
 
-    # TODO think of a way to abstract/simplify this option stuff
-    # Sets the followin opts, but stores their previous value
-    if [[ -n $BASH_VERSION ]]; then
-        local opts=(nullglob globstar)
-        local -a optset
-        for opt in "${opts[@]}"; do
-            shopt -q $opt; local optset[$opt]=$?
-            ((optset[$opt])) && shopt -s $opt
-        done
-    fi
-
+    adm_sh_setopt_push +nullglob
     ret=( "${root_dir}"/**/*.setup.sh "${root_dir}"/**/setup.sh )
-
-    # pops the options' previous value
-    if [[ -n $BASH_VERSION ]]; then
-        for opt in "${opts[@]}"; do
-            ((optset[$opt])) && shopt -u $opt
-        done
-    fi
+    adm_sh_setopt_pop
 
     btr_unset IFS
 }
