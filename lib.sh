@@ -171,11 +171,16 @@ adm_sh_setopt_push() {
     SHELL_OPT_STACK+=( "${opts_group}" )
     adm_sh_setopt "$@"
     echo pushing "$@"
+    echo SHELL_OPT_STACK "${SHELL_OPT_STACK[@]}" "${#SHELL_OPT_STACK[@]}"
 }
 
 adm_sh_setopt_pop() {
     local opts_group="${SHELL_OPT_STACK[-1]}"
-    unset 'SHELL_OPT_STACK[${#SHELL_OPT_STACK[@]}-1]'
+
+    if   [ "$ZSH_VERSION" ];  then SHELL_OPT_STACK[${#SHELL_OPT_STACK[@]}-1]=()
+    elif [ "$BASH_VERSION" ]; then unset 'SHELL_OPT_STACK[${#SHELL_OPT_STACK[@]}-1]'
+    else                      error "Unknown shell"; exit 1
+    fi
 
     if   [ "$ZSH_VERSION" ];  then local opts=("${(@s/:/)opts_group}")
     elif [ "$BASH_VERSION" ]; then IFS=':' read -a opts <<< "${opts_group}";
@@ -184,4 +189,5 @@ adm_sh_setopt_pop() {
 
     adm_sh_setopt "${opts[@]}"
     echo poping "${opts[@]}"
+    echo SHELL_OPT_STACK "${SHELL_OPT_STACK[@]}" "${#SHELL_OPT_STACK[@]}"
 }
