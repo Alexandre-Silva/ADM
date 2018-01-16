@@ -57,9 +57,12 @@ EOF
     touch "$TEST_DIR/A/not_setup.sh"
     mkdir "$TEST_DIR/B"
     touch "$TEST_DIR/B/some.setup.sh"
+    mkdir -p "$TEST_DIR/1/2/3/4/5/6"
+    touch "$TEST_DIR/1/2/3/4/5/6/setup.sh"
 
     TEST_EXPECTED_SETUPS=( $TEST_DIR/**/*.setup.sh $TEST_DIR/**/setup.sh )
 }
+
 
 __setup_deps() {
     __setup_base
