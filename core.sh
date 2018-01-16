@@ -214,7 +214,7 @@ adm_link_setup() {
 
 # Installs all packages from the given setup files
 adm_install_pkgs() {
-    # Find and install all setups packages
+    # Find and install all setup packages
     local all_packages=()
     for setup in "$@"; do
         adm__extract_var "$setup" "packages" || return 1
