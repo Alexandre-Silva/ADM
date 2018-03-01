@@ -4,12 +4,12 @@ PACMAN_FLAGS=(
     "--noconfirm"
     "--needed" # does not reistall up-to-date packages
 )
-TO_BE_UNSET+=( "PACMAN_FLAGS")
+TO_BE_UNSET+=( "PACMAN_FLAGS" )
 
 adm_pm__pacman() {
-    local args=("$@")
-    local command=${args[0]}
-    local packages=( ${args[@]:1} )
+    local args=( "$@" )
+    local command="$1"
+    local packages=( "${args[@]:1}" )
 
     case $command in
         install) sudo pacman -S "${PACMAN_FLAGS[@]}" "${packages[@]}" ;;
