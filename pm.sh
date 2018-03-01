@@ -74,10 +74,10 @@ adm_pm__call_func() {
     local action="${args[0]}"
     local raw_packages=( "${args[@]:1}" )
 
-    local -A packages
+    local -A packagesA=()
     local packages_suffixes=()
 
-    # aggregates packages by suffix in `packages`
+    # aggregates packages by suffix in `packagesA`
     for pckg in "${raw_packages[@]}" ; do
         [ -z "$pckg" ] && continue
 
@@ -85,12 +85,12 @@ adm_pm__call_func() {
 
         # Since bash does not support arrays of arrays we use a really long string
         # containning all packages separated by spaces
-        if [[ -z "${packages[$suffix]}" ]]; then
-            packages[$suffix]="${pckg#*:}"
+        if [[ -z "${packagesA[$suffix]}" ]]; then
+            packagesA[$suffix]="${pckg#*:}"
             packages_suffixes+=( "${suffix}" )
         else
-            # adds `pckg` name to `packages` to install
-            packages[$suffix]+=" ${pckg#*:}"
+            # adds `pckg` name to `packagesA` to install
+            packagesA[$suffix]+=" ${pckg#*:}"
         fi
     done
 
@@ -102,8 +102,8 @@ adm_pm__call_func() {
         if [ -n "${package_manager[$suffix]}" ]; then
 
             # convert long string to actual array of packages
-            # note the lack of "..." around packages[$suffix]
-            local packages_array=( ${packages[$suffix]} )
+            # note the lack of "..." around packagesA[$suffix]
+            local packages_array=( ${packagesA[$suffix]} )
             "${package_manager[$suffix]}" "$action" "${packages_array[@]}"
 
             local ret_code=$?
