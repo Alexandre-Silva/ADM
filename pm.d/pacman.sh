@@ -18,4 +18,6 @@ adm_pm__pacman() {
     esac
 }
 
-hash pacman &>/dev/null && adm_pm_register "pm" "adm_pm__pacman"
+if hash pacman &>/dev/null; then
+    adm_pm_register "pm" "adm_pm__pacman"
+fi

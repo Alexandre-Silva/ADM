@@ -15,4 +15,6 @@ adm_pm__npm() {
     esac
 }
 
-hash npm &>/dev/null && adm_pm_register "npm" "adm_pm__npm"
+if hash npm &>/dev/null; then
+    adm_pm_register "npm" "adm_pm__npm"
+fi

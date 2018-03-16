@@ -20,4 +20,6 @@ adm_pm__luarocks() {
     esac
 }
 
-hash luarocks &>/dev/null && adm_pm_register "rock" "adm_pm__luarocks"
+if hash luarocks &>/dev/null; then
+    adm_pm_register "rock" "adm_pm__luarocks"
+fi

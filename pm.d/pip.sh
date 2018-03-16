@@ -17,4 +17,6 @@ adm_pm__pip() {
     esac
 }
 
-hash pip &>/dev/null && adm_pm_register "pip" "adm_pm__pip"
+if hash pip &>/dev/null; then
+    adm_pm_register "pip" "adm_pm__pip"
+fi

@@ -77,6 +77,7 @@ function btr_unset_f() {
         is_function "$target" && unset -f "$target"
     done
 
+    return 0
 }
 # not to be unset
 

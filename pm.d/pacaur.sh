@@ -15,4 +15,6 @@ adm_pm__pacaur() {
     esac
 }
 
-hash pacaur &>/dev/null && adm_pm_register "aur" "adm_pm__pacaur"
+if hash pacaur &>/dev/null; then
+    adm_pm_register "aur" "adm_pm__pacaur"
+fi

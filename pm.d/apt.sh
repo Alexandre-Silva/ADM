@@ -15,4 +15,6 @@ adm_pm__apt() {
     esac
 }
 
-hash apt &>/dev/null && adm_pm_register "apt" "adm_pm__apt"
+if apt &>/dev/null; then
+    adm_pm_register "apt" "adm_pm__apt"
+fi
