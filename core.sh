@@ -92,6 +92,9 @@ adm_install_setup() {
     mkdir --parents --verbose "$ADM_TMP_DIR"
     local template="$(date +"%S:%M:%H_%d-%m-%y")"
 
+    # linkings
+    [[ $ret_code -eq 0 ]] && adm_link_setup "${setups[@]}"
+
     # execute all setups st_install
     for setup in "${setups[@]}"; do
         # create temporary dir for the setup file
@@ -108,9 +111,6 @@ adm_install_setup() {
 
         [[ $ret_code -eq 0 ]] || break
     done
-
-    # linkings
-    [[ $ret_code -eq 0 ]] && adm_link_setup "${setups[@]}"
 
     # Clean up
     CD "$curr_dir"
