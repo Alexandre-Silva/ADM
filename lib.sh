@@ -24,13 +24,13 @@ TO_BE_UNSET+=(
     "COL_YELLOW" "COL_BLUE" "COL_MAGENTA" "COL_CYAN"
 )
 
-function ok()      { echo -e "$COL_GREEN[ok]$COL_RESET "$1  ;}
-function bot()     { echo -e "\n$COL_GREEN\[._.]/$COL_RESET - "$1 ;}
-function running() { echo -en "$COL_YELLOW ⇒ $COL_RESET"$1"\n" ;}
+function ok()      { echo -e "$COL_GREEN[ok]$COL_RESET "$@  ;}
+function bot()     { echo -e "\n$COL_GREEN\[._.]/$COL_RESET - "$@ ;}
+function running() { echo -en "$COL_YELLOW ⇒ $COL_RESET"$@"\n" ;}
 function action()  { echo -e "\n$COL_YELLOW[action]:$COL_RESET\n ⇒ $1..." ;}
-function info()    { echo -e "$COL_BLUE[info]$COL_RESET "$1 ;}
-function warn()    { echo -e "$COL_YELLOW[warning]$COL_RESET "$1 ;}
-function error()   { echo -e "$COL_RED[error]$COL_RESET "$1 ;}
+function info()    { echo -e "$COL_BLUE[info]$COL_RESET "$@ ;}
+function warn()    { echo -e "$COL_YELLOW[warning]$COL_RESET "$@ ;}
+function error()   { echo -e "$COL_RED[error]$COL_RESET "$@ ;}
 
 TO_BE_UNSET_f+=(
     "ok" "bot" "running" "action" "info" "warn" "error"
