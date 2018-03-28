@@ -20,9 +20,16 @@ TO_BE_UNSET+=( package_manager )
 ##### Funcs
 
 adm_pm_init() {
+    if ! hash sudo &>/dev/null; then
+        warn "sudo wasn't found, package installation is disabled."
+        return 0
+    fi
+
     for pm in $(find "$ADM/pm.d" -type f -name "*.sh"); do
         source "$pm"
     done
+
+    return 0
 }
 
 adm_pm_register() {
