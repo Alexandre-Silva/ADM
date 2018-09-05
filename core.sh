@@ -33,9 +33,9 @@ adm_find_setups() {
     local root_dir="$1"
     ret=()
 
-    adm_sh_setopt_push +nullglob
+    adm_sh_shopt_push +nullglob
     ret=( "${root_dir}"/**/*.setup.sh "${root_dir}"/**/setup.sh )
-    adm_sh_setopt_pop
+    adm_sh_shopt_pop
 
     btr_unset IFS
 }
@@ -263,7 +263,9 @@ adm_extract_setup_paths() {
 adm_main() {
     local args=( "$@" )
 
-    adm_sh_on_exit 'adm_cleanup'
+    adm_sh_shopt_push -errexit
+    trap 'adm__on_error ${LINENO}' ERR
+
     adm_sh_compat_mode_on
 
     # Handle options
@@ -272,13 +274,12 @@ adm_main() {
     adm_opts_parse "${args[@]}" && args=( "${ret[@]}" ) # adm_opts_parse places in `ret` the arguments
 
     if [[ -n "${ADM_OPT[help]}" ]]; then
-        adm_help
-        return 0
+        local command="${help}"
     fi
 
     adm_init
 
-    local command="${args[0]}"
+    local command="${args[0]:-help}"
     args=( "${args[@]:1}" )
     adm_extract_setup_paths "${args[@]}" && args=( "${ret[@]}" )
 
@@ -295,7 +296,10 @@ adm_main() {
         *)        error              "Invalid commands: $command" ; return 1 ;;
     esac
 
+    adm_sh_shopt_pop # -errexit
     adm_sh_compat_mode_off
+    adm_cleanup
+
     return 0
 }
 
@@ -306,9 +310,9 @@ adm_cleanup() {
     adm__clean_setup_env
     adm__mark_functions
 
-    adm_sh_compat_mode_off
-
     adm__unset_marked
+
+    trap - ERR EXIT
 }
 
 
@@ -425,4 +429,20 @@ adm__unset_marked() {
     btr_unset_f "${TO_BE_UNSET_f[@]}"
 
     btr_unset "TO_BE_UNSET" "TO_BE_UNSET_f"
+}
+
+adm__on_error() {
+    local parent_lineno="$1"
+    local message="$2"
+    local code="${3:-1}"
+    if [[ -n "$message" ]] ; then
+        echo "Error on or near line ${parent_lineno}: ${message}; exiting with status ${code}"
+    else
+        echo "Error on or near line ${parent_lineno}; exiting with status ${code}"
+    fi
+
+    adm_cleanup
+    adm_sh_compat_mode_off
+
+    return "${code}"
 }

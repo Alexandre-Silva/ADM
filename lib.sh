@@ -85,35 +85,40 @@ function btr_unset_f() {
 # Shell compatibility functions between ZSH and BASH
 #--------------------------------------------------------------------------------
 
-# Registers $exit_cmd to be executed when exiting.
-adm_sh_on_exit() {
-    local exit_cmd="$1"
-
-    if [ "$ZSH_VERSION" ]; then
-        ADM_SH_ON_EXIT="${exit_cmd}"
-        zshexit() { "${ADM_SH_ON_EXIT}"; }
-        TO_BE_UNSET+=( 'ADM_SH_ON_EXIT' )
-
-    elif [ "$BASH_VERSION" ]; then
-        trap "$exit_cmd" EXIT     # POSIX
-
-    else
-        error "Unknown shell"
-        exit 1
-    fi
-}
-
 # Sets the shell (bash/zsh) such that adm can work on both shells
 adm_sh_compat_mode_on() {
-    if [ -n "${ZSH_VERSION:-}" ]; then adm_sh_setopt_push +ksharrays +shwordsplit; fi
+    if [ -n "${ZSH_VERSION:-}" ]; then adm_sh_shopt_push +ksharrays +shwordsplit; fi
 }
 
 # Sets the shell (bash/zsh) such that adm can work on both shells
 adm_sh_compat_mode_off() {
-    if [ -n "${ZSH_VERSION:-}" ]; then adm_sh_setopt_pop; fi
+    if [ -n "${ZSH_VERSION:-}" ]; then adm_sh_shopt_pop; fi
 }
 
-adm_sh_setopt() {
+adm_sh_shopt_bash() {
+    for opt in "$@"; do
+        local cmd=""
+
+        # This handles the shell opts (e.g. errexit) for /bin/sh which need to
+        # be handled by 'set' instead of bash specific options which are handled
+        # by shopt
+        case "$opt" in
+            -errexit) cmd="set -o" ;;
+            +errexit) cmd="set +o" ;;
+            +*)       cmd="shopt -s" ;;
+            -*)       cmd="shopt -u" ;;
+        esac
+
+        case "$opt" in
+            +*) ${cmd} "${opt#+}" ;;
+            -*) ${cmd} "${opt#-}" ;;
+            '') ;;
+            *) error "$0: options must be in format +<optname> or -<optname>"
+        esac
+    done
+}
+
+adm_sh_shopt() {
     if [ "$ZSH_VERSION" ]; then
         for opt in "$@"; do
             case "$opt" in
@@ -125,14 +130,7 @@ adm_sh_setopt() {
         done
 
     elif [ "$BASH_VERSION" ]; then
-        for opt in "$@"; do
-            case "$opt" in
-                +*) shopt -s "${opt#+}" ;;
-                -*) shopt -u "${opt#-}" ;;
-                '') ;;
-                *) error "$0: options must be in format +<optname> or -<optname>"
-            esac
-        done
+        adm_sh_shopt_bash "$@"
 
     else
         error "Unknown shell"
@@ -141,7 +139,7 @@ adm_sh_setopt() {
 }
 
 SHELL_OPT_STACK=()
-adm_sh_setopt_push() {
+adm_sh_shopt_push() {
     local opts_group=""
 
     if [ "$ZSH_VERSION" ]; then
@@ -169,14 +167,18 @@ adm_sh_setopt_push() {
         exit 1
     fi
 
+    if [ -z "${opts_group}" ]; then
+        opts_group=":_"
+    fi
+
     SHELL_OPT_STACK+=( "${opts_group}" )
-    adm_sh_setopt "$@"
+    adm_sh_shopt "$@"
 }
 
-adm_sh_setopt_pop() {
+adm_sh_shopt_pop() {
     local opts_group="${SHELL_OPT_STACK[-1]}"
 
-    if   [ "$ZSH_VERSION" ];  then SHELL_OPT_STACK[${#SHELL_OPT_STACK[@]}-1]=()
+    if   [ "$ZSH_VERSION" ];  then unset 'SHELL_OPT_STACK[${#SHELL_OPT_STACK[@]}-1]'
     elif [ "$BASH_VERSION" ]; then unset 'SHELL_OPT_STACK[${#SHELL_OPT_STACK[@]}-1]'
     else                      error "Unknown shell"; exit 1
     fi
@@ -186,5 +188,7 @@ adm_sh_setopt_pop() {
     else                      error "Unknown shell"; exit 1
     fi
 
-    adm_sh_setopt "${opts[@]}"
+    if [ "${opts[1]}" != "_" ]; then
+        adm_sh_shopt "${opts[@]}"
+    fi
 }
