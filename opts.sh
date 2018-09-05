@@ -124,15 +124,9 @@ adm_opts_parse2() {
             -)
                 longopt="${OPTARG}"
                 ;;
-            h)
-                adm_help
-                break
-                ;;
             \?)
-                #unrecognized option - show help
-                error "Option -${BOLD}$OPTARG${OFF} not allowed."
-                adm_help
-                break;
+                error "Option '-$OPTARG' is unrecognized."
+                longopt=help # defaults to help
                 ;;
             *)
                 # convert short option to normal name
@@ -168,6 +162,7 @@ adm_opts_build_parser() {
 
     adm_opts_add verbose   v "" adm_opts_set_true "explain what is being done"
     adm_opts_add recursive r "" adm_opts_set_true "recursively searches given directories"
+    adm_opts_add help      h "" adm_opts_set_true "prints help page"
 }
 
 ## adm_parse_*
