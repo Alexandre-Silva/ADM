@@ -298,7 +298,8 @@ adm_main() {
 
     adm_sh_shopt_pop # -errexit
     adm_sh_compat_mode_off
-    adm_cleanup
+    if [[ $command != noop ]]; then adm_cleanup; fi
+    trap - ERR
 
     return 0
 }
@@ -311,8 +312,6 @@ adm_cleanup() {
     adm__mark_functions
 
     adm__unset_marked
-
-    trap - ERR EXIT
 }
 
 

@@ -92,7 +92,7 @@ adm_sh_compat_mode_on() {
 
 # Sets the shell (bash/zsh) such that adm can work on both shells
 adm_sh_compat_mode_off() {
-    if [ -n "${ZSH_VERSION:-}" ]; then adm_sh_shopt_pop; fi
+    if [ -n "${ZSH_VERSION:-}" ]; then adm_sh_shopt_pop; emulate zsh; fi
 }
 
 adm_sh_shopt_bash() {
@@ -109,7 +109,7 @@ adm_sh_shopt_bash() {
             -*)       cmd="shopt -u" ;;
         esac
 
-        case "$opt" in
+        case "${opt}" in
             +*) ${cmd} "${opt#+}" ;;
             -*) ${cmd} "${opt#-}" ;;
             '') ;;
