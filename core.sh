@@ -263,7 +263,7 @@ adm_extract_setup_paths() {
 adm_main() {
     local args=( "$@" )
 
-    adm_sh_shopt_push -errexit
+    adm_sh_shopt_push_zsh -errexit
     trap 'adm__on_error ${LINENO}' ERR
 
     adm_sh_compat_mode_on
@@ -296,7 +296,7 @@ adm_main() {
         *)        error              "Invalid commands: $command" ; return 1 ;;
     esac
 
-    adm_sh_shopt_pop # -errexit
+    adm_sh_shopt_pop_zsh # -errexit
     adm_sh_compat_mode_off
     if [[ $command != noop ]]; then adm_cleanup; fi
     trap - ERR

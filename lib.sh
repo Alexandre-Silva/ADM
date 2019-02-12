@@ -192,3 +192,16 @@ adm_sh_shopt_pop() {
         adm_sh_shopt "${opts[@]}"
     fi
 }
+
+
+adm_sh_shopt_push_zsh() {
+    if [ "$ZSH_VERSION" ]; then
+        adm_sh_shopt_push "$@"
+    fi
+}
+
+adm_sh_shopt_pop_zsh() {
+    if [ "$ZSH_VERSION" ]; then
+        adm_sh_shopt_pop "$@"
+    fi
+}
