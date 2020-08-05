@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-PIKAUR_FLAGS=( --silent --noedit --noconfirm --noprogressbar --needed )
+PIKAUR_FLAGS=( --noedit --noconfirm --noprogressbar --needed )
 TO_BE_UNSET+=( "PIKAUR_FLAGS" )
 
 adm_pm__pikaur() {
