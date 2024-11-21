@@ -326,6 +326,8 @@ adm__run_function() {
     local setups=( "${args[@]:1}" )
     ret=()
 
+    is_function "$func" && unset "$func"
+
     local setup
     for setup in "${setups[@]}"; do
         if [ ! -f "$setup" ]; then
@@ -333,13 +335,16 @@ adm__run_function() {
             return 1
         fi
 
-        is_function "$func" && unset "$func"
-
         adm__source_safe "$setup"
 
         # __source_sage unsets the common functions defined in setup.sh's
         if is_function "$func"; then
-            "$func" || return $?
+            if "$func"; then
+              unset "$func"
+            else
+              unset "$func"
+              return $?
+            fi
         fi
     done
 
@@ -397,8 +402,10 @@ adm__clean_setup_env() {
 adm__helpers() {
     local setup="$1"
 
-    ADM_FILE="$(realpath "${setup}")"
-    ADM_DIR="$(dirname "${ADM_FILE}")"
+    # ADM_FILE="$(realpath "${setup}")"
+    # ADM_DIR="$(dirname "${ADM_FILE}")"
+    ADM_FILE="${setup}" # setup should already be in full path
+    ADM_DIR="${setup%/*}" # faster, shell only version of dirname
 }
 
 # Mark helpers vars to be unset

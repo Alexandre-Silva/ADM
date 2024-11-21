@@ -38,22 +38,24 @@ TO_BE_UNSET_f+=(
 
 # Returns 0 if function of name `func` is defined
 # Works in bash and zsh
-function is_function() {
-    local func="$1"
+if [ -n "$ZSH_VERSION" ]; then
+  function is_function() {
+      local func="$1"
+      if [[ "$(type -w $func)" = *function ]] ; then
+          return 0
+      fi
+      return 1
+  }
+else
+  function is_function() {
+      local func="$1"
 
-    if [ -n "$ZSH_VERSION" ]; then
-        if [[ "$(type -w $func)" = *function ]] ; then
-            return 0
-        fi
-
-    else # assume BASH or equivalent
-        if [ -n "$(type -t $func)" ] && [ "$(type -t $func)" = function ]; then
-            return 0
-        fi
-    fi
-
-    return 1
-}
+      if [ -n "$(type -t $func)" ] && [ "$(type -t $func)" = function ]; then
+          return 0
+      fi
+      return 1
+  }
+fi
 # not to be unset
 
 # Better unset, unsets all variables passed as names in `args`.
